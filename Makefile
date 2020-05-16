@@ -1,30 +1,47 @@
 .DEFAULT_GOAL := help
 
 help:
-	@echo "${PROJECT}"
+	@echo "instance-watcher-${PROJECT}"
 	@echo "${DESCRIPTION}"
 	@echo ""
+	@echo "Deploy using this order:"
 	@echo "	layer - prepare the layer"
 	@echo "	package - prepare the package"
+	@echo "	artifacts - create s3 bucket"
+	@echo "	verify-sender - verify SES Sender email"
 	@echo "	deploy - deploy the lambda function"
+	@echo "	---"
 	@echo "	destroy - destroy the CloudFormation stack"
 	@echo "	clean - clean the build folder"
 	@echo "	clean-layer - clean the layer folder"
 	@echo "	cleaning - clean build and layer folders"
 
 ####################### Project #######################
-PROJECT ?= instance-watcher
+PROJECT ?= discover
 DESCRIPTION ?= Instance Watcher Stack
 #######################################################
 
 ###################### Variables ######################
-S3_BUCKET ?= ${PROJECT}-artifacts
+S3_BUCKET ?= instance-watcher-${PROJECT}-artifacts
 AWS_REGION ?= eu-west-1
 # Recipients are space delimited (ie: john@doe.com david@doe.com)
-RECIPIENTS := john@doe.com
-SENDER := john@doe.com
+RECIPIENTS := victor.grenu@external.engie.com jeremy.monnier@external.engie.com
+SENDER := victor.grenu@external.engie.com
 ENV ?= dev
 #######################################################
+
+artifacts:
+	@echo "Creation of artifacts bucket"
+	@aws s3 mb s3://$(S3_BUCKET)
+	@aws s3api put-bucket-encryption --bucket $(S3_BUCKET) \
+		--server-side-encryption-configuration \
+		'{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]}'
+	@aws s3api put-bucket-versioning --bucket $(S3_BUCKET) --versioning-configuration Status=Enabled
+
+verify-sender:
+	@echo "Verifing sender email address"
+	@aws ses verify-email-identity --email-address $(SENDER)
+	@echo "Done; Check your Inbox to validate the link!"
 
 package: clean
 	@echo "Consolidating python code in ./build"
@@ -51,19 +68,19 @@ deploy:
 	aws cloudformation deploy \
 		--template-file build/template-lambda.yml \
 		--region ${AWS_REGION} \
-		--stack-name "${PROJECT}-${ENV}" \
+		--stack-name "instance-watcher-${PROJECT}-${ENV}" \
 		--capabilities CAPABILITY_IAM \
 		--parameter-overrides \
 			ENV=${ENV} \
 			RECIPIENTS="${RECIPIENTS}" \
 			SENDER=${SENDER} \
-			PROJECT=${PROJECT} \
+			PROJECT=instance-watcher-${PROJECT} \
 			AWSREGION=${AWS_REGION} \
 		--no-fail-on-empty-changeset
 
 tear-down:
-	@read -p "Are you sure that you want to destroy stack '${PROJECT}-${ENV}'? [y/N]: " sure && [ $${sure:-N} = 'y' ]
-	aws cloudformation delete-stack --stack-name "${PROJECT}-${ENV}"
+	@read -p "Are you sure that you want to destroy stack 'instance-watcher-${PROJECT}-${ENV}'? [y/N]: " sure && [ $${sure:-N} = 'y' ]
+	aws cloudformation delete-stack --stack-name "instance-watcher-${PROJECT}-${ENV}"
 
 clean-layer:
 	@rm -fr layer/

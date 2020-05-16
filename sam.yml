@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: Provision the AWS Lambda function
+Description: Instance Watcher Stack
 ###########################################################
 Parameters:
 ###########################################################
@@ -10,7 +10,7 @@ Parameters:
     Description: Environment Name
   AWSREGION:
     Type: String
-    Default: dev
+    Default: eu-west-1
     Description: AWS Region
   RECIPIENTS:
     Type: String
@@ -18,11 +18,11 @@ Parameters:
     Description: List of recipients
   SENDER:
     Type: String
-    Default: john@doe.com
+    Default: no-reply@doe.com
     Description: Sender
   PROJECT:
     Type: String
-    Default: dev
+    Default: instance-watcher
     Description: Project Name
 ###########################################################
 Resources:
@@ -30,13 +30,13 @@ Resources:
   InstanceWatcherFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      FunctionName: !Sub instance-watcher-${ENV}
-      Description: Monitoring Running EC2/RDS Instances
+      FunctionName: !Sub ${PROJECT}-${ENV}
+      Description: Monitoring Running Instances + Alerting
       Handler: handlers.main
       Runtime: python3.7
       CodeUri: ./build
       MemorySize: 256
-      Timeout: 120
+      Timeout: 240
       Layers:
         - !Ref boto3layer
       Environment:
@@ -54,6 +54,8 @@ Resources:
               - ec2:DescribeInstances
               - ec2:DescribeInstanceStatus
               - rds:DescribeDBInstances
+              - sagemaker:ListNotebookInstances
+              - glue:GetDevEndpoints
               - ses:SendEmail
               - iam:GetRole
               - iam:ListAccountAliases
@@ -74,8 +76,8 @@ Resources:
       Description: boto3 layer
       ContentUri: ./layer
       CompatibleRuntimes:
-        - python2.7
         - python3.6
         - python3.7
       LicenseInfo: 'Available under the MIT-0 license.'
       RetentionPolicy: Retain
+

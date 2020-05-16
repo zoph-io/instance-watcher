@@ -18,6 +18,8 @@ def main(event, context):
     mail_enabled = 1
     running_ec2 = []
     running_rds = []
+    running_sage = []
+    running_glue = []
     hidden_count = 0
     #hidden_rds_count = 0
     account = sts.get_caller_identity().get('Account')
@@ -27,27 +29,73 @@ def main(event, context):
     for region in ec2_regions:
         print("Checking running instances in: " + region)
         
+        # Glue Development Endpoint Checking
+        gluecon = boto3.client('glue', region_name=region)
+        glue = gluecon.get_dev_endpoints()
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/glue.html#Glue.Client.get_dev_endpoints
+        # dict
+        for r in glue['DevEndpoints']:
+            glue_endpointname = r['EndpointName']
+            glue_status = r['Status']
+            glue_numberofnodes = r['NumberOfNodes']
+            glue_createdtimestamp = r['CreatedTimestamp'].strftime("%Y-%m-%d %H:%M:%S")
+            
+            if glue_status == "READY":
+                running_glue.append({
+                    "glue_endpointname": r['EndpointName'],
+                    "glue_status": r['Status'],
+                    "glue_numberofnodes": r['NumberOfNodes'],
+                    "region": region,
+                    "glue_createdtimestamp": r['CreatedTimestamp'].strftime("%Y-%m-%d %H:%M:%S")
+                })
+                print(glue_endpointname,glue_status,glue_numberofnodes,glue_createdtimestamp)
+        
+        # SageMaker Notebook Instances Checking
+        sagecon = boto3.client('sagemaker', region_name=region)
+        sage = sagecon.list_notebook_instances()
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker.html#SageMaker.Client.list_notebook_instances
+        # dict
+        for r in sage['NotebookInstances']:
+            sage_notebookinstancename = r['NotebookInstanceName']
+            sage_notebookinstancestatus = r['NotebookInstanceStatus']
+            sage_instancetype = r['InstanceType']
+            sage_creationtime = r['CreationTime'].strftime("%Y-%m-%d %H:%M:%S")
+
+            if sage_notebookinstancestatus == "InService":
+                running_sage.append({
+                    "sage_notebookinstancename": r['NotebookInstanceName'],
+                    "sage_notebookinstancestatus": r['NotebookInstanceStatus'],
+                    "sage_instancetype": r['InstanceType'],
+                    "region": region,
+                    "sage_creationtime": r['CreationTime'].strftime("%Y-%m-%d %H:%M:%S")
+                })
+                print(sage_notebookinstancename,sage_notebookinstancestatus,sage_instancetype,sage_creationtime)
+
         # RDS Checking
         rdscon = boto3.client('rds', region_name=region)
         rds = rdscon.describe_db_instances()
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/rds.html#RDS.Client.describe_db_instances
+        # dict
         for r in rds['DBInstances']:
             db_instance_name = r['DBInstanceIdentifier']
             db_engine =  r['Engine']
+            db_status = r['DBInstanceStatus']
             db_type = r['DBInstanceClass']
             db_storage = r['AllocatedStorage']
             db_creation_time = r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
             db_publicly_accessible = r['PubliclyAccessible']
 
-            running_rds.append({
-                "db_instance_name": r['DBInstanceIdentifier'],
-                "db_engine": r['Engine'],
-                "db_type": r['DBInstanceClass'],
-                "db_storage": r['AllocatedStorage'],
-                "db_publicly_accessible": r['PubliclyAccessible'],
-                "region": region,
-                "launch_time": r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
-            })
-            print(db_instance_name,db_engine,db_type,db_storage,db_creation_time,db_publicly_accessible)
+            if db_status == "available" or "backing-up" or "failed":
+                running_rds.append({
+                    "db_instance_name": r['DBInstanceIdentifier'],
+                    "db_engine": r['Engine'],
+                    "db_type": r['DBInstanceClass'],
+                    "db_storage": r['AllocatedStorage'],
+                    "db_publicly_accessible": r['PubliclyAccessible'],
+                    "region": region,
+                    "launch_time": r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
+                })
+                print(db_instance_name,db_status,db_engine,db_type,db_storage,db_creation_time,db_publicly_accessible)
         
         # EC2 Checking
         ec2con = boto3.resource('ec2', region_name=region)
@@ -63,7 +111,7 @@ def main(event, context):
                         instancename = tags["Value"]
                     if tags["Key"] == 'iw' and tags["Value"] == 'off':
                         hidden = 1
-                        hidden_count = +1
+                        hidden_count += 1
                         break
                 if hidden != 1:
                     print(instancename, instance.id)
@@ -83,8 +131,8 @@ def main(event, context):
     print("Total number of running RDS instance(s):", len(running_rds))
     #print("Total number of hidden RDS instance(s):", len(hidden_rds_count)) # not yet implemented
 
-    if (len(running_ec2) == 0 and len(running_rds) == 0):
-        print("Nothing to do here, no running EC2 or RDS instances")
+    if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0):
+        print("Nothing to do here, no running EC2, RDS, SageMaker, Glue instances")
     else:
         if mail_enabled == 1:
             print("Sending email to: " + str(recipients))
@@ -145,8 +193,43 @@ def main(event, context):
                 </body>
             </html>
             """
+
+            # Crafting SageMaker html table
+            if len(running_sage) > 0:
+                sage_table = """
+                    <h3>Running SageMaker Notebook Instances: </h3>
+                    <table cellpadding="4" cellspacing="4">
+                    <tr><td><strong>Name</strong></td><td><strong>Status</strong></td><td><strong>Instance Type</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
+                    """ + \
+                        "\n".join([f"<tr><td>{r['sage_notebookinstancename']}</td><td>{r['sage_notebookinstancestatus']}</td><td>{r['sage_instancetype']}</td><td>{r['region']}</td><td>{r['sage_creationtime']}</td></tr>" for r in running_sage]) \
+                        + """
+                    </table>
+                    <p>Total number of running SageMaker Notebook instance(s): """ + str(len(running_sage)) + """"""
+            else:
+                sage_table = """"""
+
+            # Crafting Glue html table
+            if len(running_glue) > 0:
+                glue_table = """
+                    <h3>Running Glue Development Endpoint: </h3>
+                    <table cellpadding="4" cellspacing="4">
+                    <tr><td><strong>Name</strong></td><td><strong>Status</strong></td><td><strong>Number of nodes (DPU)</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
+                    """ + \
+                        "\n".join([f"<tr><td>{r['glue_endpointname']}</td><td>{r['glue_status']}</td><td>{r['glue_numberofnodes']}</td><td>{r['region']}</td><td>{r['glue_createdtimestamp']}</td></tr>" for r in running_glue]) \
+                        + """
+                    </table>
+                    <p>Total number of running Glue Development Endpoint(s): """ + str(len(running_glue)) + """"""
+            else:
+                glue_table = """"""
+            
+            footer = """
+                    <p><a href="https://github.com/z0ph/instance-watcher">Instance Watcher 🖤</a></p>
+                </body>
+            </html>
+            """
+
             # Concatenate html email
-            body_html = header + ec2_table + rds_table + footer
+            body_html = header + ec2_table + rds_table + sage_table + glue_table +  footer
 
             response = ses.send_email(
                 Destination={
