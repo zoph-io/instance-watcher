@@ -111,7 +111,7 @@ def main(event, context):
             rs_creation_time = r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
             rs_tags = r['Tags']
 
-            if rs_status == "available" or "paused" or "storage-full" or "resizing":
+            if rs_status == "available" or "storage-full" or "resizing":
                 running_redshift.append({
                     "rs_clusteridentifier": r['ClusterIdentifier'],
                     "rs_status": r['ClusterStatus'],
