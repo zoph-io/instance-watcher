@@ -52,6 +52,7 @@ Resources:
               Action:
               - ec2:DescribeRegions
               - ec2:DescribeInstances
+              - redshift:DescribeClusters
               - ec2:DescribeInstanceStatus
               - rds:DescribeDBInstances
               - sagemaker:ListNotebookInstances

@@ -193,7 +193,7 @@ def main(event, context):
             # Crafting EC2 html table
             if len(running_ec2) > 0:
                 ec2_table = """
-                    <h3>Running EC2 Instances: </h3>
+                    <h3>Running EC2 Instance(s): </h3>
                     <table cellpadding="4" cellspacing="4">
                     <tr><td><strong>Name</strong></td><td><strong>Instance ID</strong></td><td><strong>Intsance Type</strong></td><td><strong>Key Name</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
                     """ + \
@@ -208,7 +208,7 @@ def main(event, context):
             # Crafting RDS html table
             if len(running_rds) > 0:
                 rds_table = """
-                    <h3>Running RDS Instances: </h3>
+                    <h3>Running RDS Instance(s): </h3>
                     <table cellpadding="4" cellspacing="4">
                     <tr><td><strong>Name</strong></td><td><strong>Engine</strong></td><td><strong>DB Type</strong></td><td><strong>Volume (GB)</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
                     """ + \
@@ -228,7 +228,7 @@ def main(event, context):
             # Crafting SageMaker html table
             if len(running_sage) > 0:
                 sage_table = """
-                    <h3>Running SageMaker Notebook Instances: </h3>
+                    <h3>Running SageMaker Notebook Instance(s): </h3>
                     <table cellpadding="4" cellspacing="4">
                     <tr><td><strong>Name</strong></td><td><strong>Status</strong></td><td><strong>Instance Type</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
                     """ + \
@@ -242,7 +242,7 @@ def main(event, context):
             # Crafting Glue html table
             if len(running_glue) > 0:
                 glue_table = """
-                    <h3>Running Glue Development Endpoint: </h3>
+                    <h3>Running Glue Development Endpoint(s): </h3>
                     <table cellpadding="4" cellspacing="4">
                     <tr><td><strong>Name</strong></td><td><strong>Status</strong></td><td><strong>Number of nodes (DPU)</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
                     """ + \
@@ -259,8 +259,28 @@ def main(event, context):
             </html>
             """
 
+            # Crafting Redshift html table
+            if len(running_redshift) > 0:
+                rs_table = """
+                    <h3>Running Redshift Cluster(s): </h3>
+                    <table cellpadding="4" cellspacing="4">
+                    <tr><td><strong>Name</strong></td><td><strong>Status</strong></td><td><strong>Number of nodes</strong></td><td><strong>Node Type</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
+                    """ + \
+                        "\n".join([f"<tr><td>{r['rs_clusteridentifier']}</td><td>{r['rs_status']}</td><td>{r['rs_numberofnodes']}</td><td>{r['rs_type']}</td><td>{r['region']}</td><td>{r['rs_creation_time']}</td></tr>" for r in running_redshift]) \
+                        + """
+                    </table>
+                    <p>Total number of running Redshift Cluster(s): """ + str(len(running_redshift)) + """"""
+            else:
+                rs_table = """"""
+            
+            footer = """
+                    <p><a href="https://github.com/z0ph/instance-watcher">Instance Watcher 🖤</a></p>
+                </body>
+            </html>
+            """
+
             # Concatenate html email
-            body_html = header + ec2_table + rds_table + sage_table + glue_table +  footer
+            body_html = header + ec2_table + rds_table + sage_table + glue_table + rs_table + footer
 
             response = ses.send_email(
                 Destination={
@@ -284,8 +304,7 @@ def main(event, context):
                 },
                 Source=sender,
             )
-            print("Email sent! Message ID:"),
-            print(response['MessageId'])
+            print("Email sent! Message ID: " + response['MessageId'])
 
 if __name__ == '__main__':
     main(0,0)
