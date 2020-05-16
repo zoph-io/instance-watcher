@@ -25,7 +25,7 @@ DESCRIPTION ?= Instance Watcher Stack
 S3_BUCKET ?= instance-watcher-${PROJECT}-artifacts
 AWS_REGION ?= eu-west-1
 # Recipients are space delimited (ie: john@doe.com david@doe.com)
-RECIPIENTS := victor.grenu@external.engie.com jeremy.monnier@external.engie.com
+RECIPIENTS := victor.grenu@external.engie.com
 SENDER := victor.grenu@external.engie.com
 ENV ?= dev
 #######################################################

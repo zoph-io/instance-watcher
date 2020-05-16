@@ -20,6 +20,7 @@ def main(event, context):
     running_rds = []
     running_sage = []
     running_glue = []
+    running_redshift = []
     hidden_count = 0
     #hidden_rds_count = 0
     account = sts.get_caller_identity().get('Account')
@@ -97,6 +98,30 @@ def main(event, context):
                 })
                 print(db_instance_name,db_status,db_engine,db_type,db_storage,db_creation_time,db_publicly_accessible)
         
+        # Redshift Checking
+        redshiftcon = boto3.client('redshift', region_name=region)
+        redshift = redshiftcon.describe_clusters()
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/redshift.html#Redshift.Client.describe_clusters
+        # dict
+        for r in redshift['Clusters']:
+            rs_clusteridentifier = r['ClusterIdentifier']
+            rs_status = r['ClusterStatus']
+            rs_type = r['NodeType']
+            rs_numberofnodes = r['NumberOfNodes']
+            rs_creation_time = r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
+            rs_tags = r['Tags']
+
+            if rs_status == "available" or "paused" or "storage-full" or "resizing":
+                running_redshift.append({
+                    "rs_clusteridentifier": r['ClusterIdentifier'],
+                    "rs_status": r['ClusterStatus'],
+                    "rs_type": r['NodeType'],
+                    "rs_numberofnodes": r['NumberOfNodes'],
+                    "region": region,
+                    "rs_creation_time": r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
+                })
+                print(rs_clusteridentifier,rs_status,rs_type,rs_numberofnodes,region,rs_creation_time)
+
         # EC2 Checking
         ec2con = boto3.resource('ec2', region_name=region)
         instances = ec2con.instances.filter()
@@ -131,8 +156,8 @@ def main(event, context):
     print("Total number of running RDS instance(s):", len(running_rds))
     #print("Total number of hidden RDS instance(s):", len(hidden_rds_count)) # not yet implemented
 
-    if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0):
-        print("Nothing to do here, no running EC2, RDS, SageMaker, Glue instances")
+    if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) ==0):
+        print("Nothing to see here, no running instances")
     else:
         if mail_enabled == 1:
             print("Sending email to: " + str(recipients))
@@ -141,9 +166,15 @@ def main(event, context):
                         Instance Watcher\r\n
                         Running EC2 Instances {ec2}
                         Running RDS Instances {rds}
+                        Running SageMaker Notebook Instances {sage}
+                        Running Glue Dev Endpoints {glue}
+                        Running Redshift Clusters {rs}
                         """).format(
                                 ec2=len(running_ec2),
                                 rds=len(running_rds),
+                                sage=len(running_sage),
+                                glue=len(running_glue),
+                                rs=len(running_redshift)
                             )
             header = """
             <html>
