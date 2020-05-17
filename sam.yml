@@ -24,6 +24,10 @@ Parameters:
     Type: String
     Default: instance-watcher
     Description: Project Name
+  ENABLEMAIL:
+    Type: String
+    Default: 1
+    Description: Activate Email Notification
 ###########################################################
 Resources:
 ###########################################################
@@ -44,6 +48,7 @@ Resources:
           RECIPIENTS: !Ref RECIPIENTS
           SENDER: !Ref SENDER
           AWSREGION: !Ref AWSREGION
+          ENABLEMAIL: !Ref ENABLEMAIL
       Policies:
         - AWSLambdaExecute # Managed Policy
         - Version: '2012-10-17' # Policy Document

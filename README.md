@@ -39,6 +39,7 @@ Change emails settings and project name in `Makefile` or use command-line
 PROJECT ?= my_project_name
 RECIPIENTS := my_target_email@domain.com my_second_target@domain.com
 SENDER := my_source_email@domain.com
+ENABLEMAIL := 1
 ```
 
 > You will need to verify email received from AWS SES (for SENDER) using `make verify-sender`
@@ -84,4 +85,4 @@ If you want to whitelist a specific instance to be hidden from the daily report,
 * Add `Instance Profile` column for `EC2`
 * Add pricing column
 * Actionable `mail_enabled` with variable
-* Slack Notifications
+* Slack/Teams Notifications

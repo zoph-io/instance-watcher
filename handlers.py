@@ -3,7 +3,7 @@ import os
 
 aws_region = os.environ['AWSREGION']
 session = boto3.Session(region_name=aws_region)
-ec2 = session.client('ec2')
+ec2r = session.client('ec2')
 ses = session.client('ses')
 sts = session.client('sts')
 
@@ -12,20 +12,19 @@ recipients = os.environ['RECIPIENTS'].split()
 subject = '[AWS] Instance Watcher 👀 - '
 sender = "Instance Watcher <" + os.environ['SENDER'] + ">"
 charset = "UTF-8"
+mail_enabled = int(os.environ['ENABLEMAIL'])
 
 def main(event, context):
-    # Activate mail notifications
-    mail_enabled = 1
     running_ec2 = []
     running_rds = []
     running_sage = []
     running_glue = []
     running_redshift = []
 
-    #hidden_rds_count = 0
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
-    ec2_regions = [region['RegionName'] for region in ec2.describe_regions()['Regions']]
+    #ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
+    ec2_regions = ["eu-west-1"] # Troubleshooting only
     # For all AWS Regions
     for region in ec2_regions:
         print("Checking running instances in: " + region)
@@ -103,22 +102,24 @@ def main(event, context):
         redshift = redshiftcon.describe_clusters()
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/redshift.html#Redshift.Client.describe_clusters
         # dict
+        rs_hidden_count = 0
         for r in redshift['Clusters']:
             rs_clusteridentifier = r['ClusterIdentifier']
             rs_status = r['ClusterStatus']
             rs_type = r['NodeType']
             rs_numberofnodes = r['NumberOfNodes']
             rs_creation_time = r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
-            
+
             # Whitelist checking
+            rs_tags = r['Tags']
             rs_hidden = 0
-            for tags in r['Tags']:
+            for tags in rs_tags or []:
                 if tags["Key"] == 'iw' and tags["Value"] == 'off':
                     rs_hidden = 1
                     rs_hidden_count += 1
                     break
             if rs_hidden != 1:
-                if rs_status == "available" or "pause" or "storage-full" or "resizing":
+                if rs_status == "available" or "storage-full" or "resizing":
                     running_redshift.append({
                         "rs_clusteridentifier": r['ClusterIdentifier'],
                         "rs_status": r['ClusterStatus'],
@@ -158,13 +159,23 @@ def main(event, context):
                         "launch_time": instance.launch_time.strftime("%Y-%m-%d %H:%M:%S")
                     })
             else:
-                print("- No running instance, but some exist (Pending, Stopped or Terminated)")
+                print("No running EC2 instance, but some exist (Pending, Stopped, Terminated or Whitelisted): ", instance.id)
+    
+    # Exec Summary (Logging)
+    print("===== Summary =====")
     print("Total number of running EC2 instance(s):", len(running_ec2))
     print("Total number of hidden EC2 instance(s):", ec2_hidden_count)
     print("Total number of running RDS instance(s):", len(running_rds))
-    print("Total number of hidden RDS instance(s):", len(rs_hidden_count))
+    #print("Total number of hidden RDS instance(s):", len(rds_hidden_count))
+    print("Total number of running Glue Dev Endpoint(s):", len(running_glue))
+    #print("Total number of hidden Glue Dev Endpoint(s):", ec2_hidden_count)
+    print("Total number of running SageMaker Notebook instance(s):", len(running_sage))
+    #print("Total number of hidden SageMaker Notebook instance(s):", ec2_hidden_count)
+    print("Total number of running Redshift Cluster(s):", len(running_redshift))
+    print("Total number of hidden Redshift Cluster(s):", rs_hidden_count)
+    print("==="*10)
 
-    if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) ==0):
+    if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0):
         print("Nothing to see here, no running instance")
     else:
         if mail_enabled == 1:
@@ -318,6 +329,8 @@ def main(event, context):
                 Source=sender,
             )
             print("Email sent! Message ID: " + response['MessageId'])
+        else:
+            print("Email Notification Disabled")
 
 if __name__ == '__main__':
     main(0,0)
