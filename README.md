@@ -86,3 +86,4 @@ If you want to whitelist a specific instance to be hidden from the daily report,
 * Add pricing column
 * ~~Actionable `mail_enabled` with variable~~
 * Slack/Teams Notifications
+* Alert on crash (CloudWatch)

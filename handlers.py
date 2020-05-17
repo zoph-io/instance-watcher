@@ -173,7 +173,7 @@ def main(event, context):
     #print("Total number of hidden SageMaker Notebook instance(s):", ec2_hidden_count)
     print("Total number of running Redshift Cluster(s):", len(running_redshift))
     print("Total number of hidden Redshift Cluster(s):", rs_hidden_count)
-    print("==="*10)
+    print("==="*8)
 
     if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0):
         print("Nothing to see here, no running instance")
@@ -219,8 +219,7 @@ def main(event, context):
                         "\n".join([f"<tr><td>{r['instance_name']}</td><td>{r['id']}</td><td>{r['instance_type']}</td><td>{r['key_pair']}</td><td>{r['region']}</td><td>{r['launch_time']}</td></tr>" for r in running_ec2]) \
                         + """
                     </table>
-                    <p>Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """
-                """
+                    <p>Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """"""
             else:
                 ec2_table = """"""
             
