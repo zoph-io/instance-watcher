@@ -10,23 +10,24 @@ It covers actually:
 - RDS Instances
 - SageMaker Notebook Instances
 - Glue Development Endpoints
+- Redshift Clusters
+- EMR Clusters
 
 I'm using this for `non-prod`, `lab`, `sandbox`, and `personal` AWS accounts, to get a kindly reminder of what I've left running. :money_with_wings:
 
 ## Core features
 
-* List running EC2 instances across all AWS Regions.
+* List running instances across all AWS Regions.
   * Check `name`, `instance-id`, `instance_type`, `key_name`, `region`, `launch_time`
 * List running RDS instances across all AWS Regions.
   * Check `db_instance_name`, `db_engine`, `db_type`, `db_storage`, `region`, `launch_time`
 * White list capability using the `iw` [tag](#Whitelisting)
 * Send summary by email once a day if any running instance
-* Serverless Architecture using AWS Lambda + layer and SES
+* Serverless Architecture using AWS Lambda + `boto3` layer and Simple Email Service (`SES`)
 
 ## Requirements
 
-* [Verify](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses-procedure.html) your **sender** and **recipient** (in sandbox mode) SES email
-* Create `<your_project_name>-artifacts` s3 bucket (default is `instance-watcher-artifacts`)
+> Before you can send an email using Amazon SES, you must verify the address or domain that you are sending the email from to prove that you own it. If you do not have production access yet, you also need to verify any email addresses that you send emails to except for email addresses provided by the Amazon SES mailbox simulator.
 
 ## Deployment
 
@@ -52,7 +53,7 @@ SENDER := my_source_email@domain.com
                 SENDER=sender@youremail.com \
                 RECIPIENTS='targetemail@youremail.com targetemail2@youremail.com'
 
-*Nb: Use emails in command line is optional if your already set up in the `Makefile`*
+*Nb: Use emails in the command line is optional if you've already set up in the `Makefile`*
 
 ## Destroy
 
@@ -72,11 +73,13 @@ If you want to whitelist a specific instance to be hidden from the daily report,
   * Whitelist
 * ~~Add `Glue Dev Endpoints`~~
   * Whitelist
-* Add `Redshift Cluster`
+* ~~Add `Redshift Cluster`~~
+  * Whitelist
+* Add `EMR`
   * Whitelist
 * ~~Add SES setup built-in~~
 * Whitelist for `RDS Instances`
 * Add python unit tests
 * Multi AWS Account Support
-* Add `Instance Profile` column (EC2)
+* Add `Instance Profile` column for `EC2` 
 * Add pricing column

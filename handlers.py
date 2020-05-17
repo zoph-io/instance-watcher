@@ -109,24 +109,31 @@ def main(event, context):
             rs_type = r['NodeType']
             rs_numberofnodes = r['NumberOfNodes']
             rs_creation_time = r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
-            rs_tags = r['Tags']
-
-            if rs_status == "available" or "storage-full" or "resizing":
-                running_redshift.append({
-                    "rs_clusteridentifier": r['ClusterIdentifier'],
-                    "rs_status": r['ClusterStatus'],
-                    "rs_type": r['NodeType'],
-                    "rs_numberofnodes": r['NumberOfNodes'],
-                    "region": region,
-                    "rs_creation_time": r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
-                })
-                print(rs_clusteridentifier,rs_status,rs_type,rs_numberofnodes,region,rs_creation_time)
+            
+            # Whitelist checking
+            rs_hidden = 0
+            for tags in r['Tags']:
+                if tags["Key"] == 'iw' and tags["Value"] == 'off':
+                    rs_hidden = 1
+                    rs_hidden_count += 1
+                    break
+            if rs_hidden != 1:
+                if rs_status == "available" or "pause" or "storage-full" or "resizing":
+                    running_redshift.append({
+                        "rs_clusteridentifier": r['ClusterIdentifier'],
+                        "rs_status": r['ClusterStatus'],
+                        "rs_type": r['NodeType'],
+                        "rs_numberofnodes": r['NumberOfNodes'],
+                        "region": region,
+                        "rs_creation_time": r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
+                    })
+                    print(rs_clusteridentifier,rs_status,rs_type,rs_numberofnodes,region,rs_creation_time)
 
         # EC2 Checking
         ec2con = boto3.resource('ec2', region_name=region)
-        instances = ec2con.instances.filter()
+        ec2 = ec2con.instances.filter()
         # For every instances in region
-        for instance in instances:
+        for instance in ec2:
             if instance.state["Name"] == "running":
                 # For all instances tags
                 hidden = 0

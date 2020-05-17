@@ -31,12 +31,12 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       FunctionName: !Sub ${PROJECT}-${ENV}
-      Description: Monitoring Running Instances + Alerting
+      Description: Monitoring Running Instances + Email Alerting
       Handler: handlers.main
       Runtime: python3.7
       CodeUri: ./build
       MemorySize: 256
-      Timeout: 240
+      Timeout: 300
       Layers:
         - !Ref boto3layer
       Environment:

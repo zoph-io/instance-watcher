@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 
 help:
-	@echo "instance-watcher-${PROJECT}"
+	@echo "Instance-Watcher-${PROJECT}"
 	@echo "${DESCRIPTION}"
 	@echo ""
 	@echo "Deploy using this order:"
