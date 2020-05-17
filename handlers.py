@@ -21,7 +21,7 @@ def main(event, context):
     running_sage = []
     running_glue = []
     running_redshift = []
-    hidden_count = 0
+
     #hidden_rds_count = 0
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
@@ -133,19 +133,20 @@ def main(event, context):
         ec2con = boto3.resource('ec2', region_name=region)
         ec2 = ec2con.instances.filter()
         # For every instances in region
+        ec2_hidden_count = 0
         for instance in ec2:
             if instance.state["Name"] == "running":
                 # For all instances tags
-                hidden = 0
+                ec2_hidden = 0
                 instancename = "n/a"
                 for tags in instance.tags or []:
                     if tags["Key"] == 'Name':
                         instancename = tags["Value"]
                     if tags["Key"] == 'iw' and tags["Value"] == 'off':
-                        hidden = 1
-                        hidden_count += 1
+                        ec2_hidden = 1
+                        ec2_hidden_count += 1
                         break
-                if hidden != 1:
+                if ec2_hidden != 1:
                     print(instancename, instance.id)
                     # fill the list
                     running_ec2.append({
@@ -159,12 +160,12 @@ def main(event, context):
             else:
                 print("- No running instance, but some exist (Pending, Stopped or Terminated)")
     print("Total number of running EC2 instance(s):", len(running_ec2))
-    print("Total number of hidden EC2 instance(s):", hidden_count)
+    print("Total number of hidden EC2 instance(s):", ec2_hidden_count)
     print("Total number of running RDS instance(s):", len(running_rds))
-    #print("Total number of hidden RDS instance(s):", len(hidden_rds_count)) # not yet implemented
+    print("Total number of hidden RDS instance(s):", len(rs_hidden_count))
 
     if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) ==0):
-        print("Nothing to see here, no running instances")
+        print("Nothing to see here, no running instance")
     else:
         if mail_enabled == 1:
             print("Sending email to: " + str(recipients))
@@ -208,7 +209,7 @@ def main(event, context):
                         + """
                     </table>
                     <p>Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """
-                    <br />Total number of hidden EC2 instance(s): """ + str(hidden_count) + """</p>"""
+                """
             else:
                 ec2_table = """"""
             
@@ -280,6 +281,11 @@ def main(event, context):
             else:
                 rs_table = """"""
             
+            hidden_table = """
+                <br />Total number of hidden EC2 instance(s): """ + str(ec2_hidden_count) + """</p>
+                <br />Total number of hidden Redshift Cluster(s): """ + str(rs_hidden_count) + """</p>
+            """
+
             footer = """
                     <p><a href="https://github.com/z0ph/instance-watcher">Instance Watcher 🖤</a></p>
                 </body>
@@ -287,7 +293,7 @@ def main(event, context):
             """
 
             # Concatenate html email
-            body_html = header + ec2_table + rds_table + sage_table + glue_table + rs_table + footer
+            body_html = header + ec2_table + rds_table + sage_table + glue_table + rs_table + hidden_table + footer
 
             response = ses.send_email(
                 Destination={
