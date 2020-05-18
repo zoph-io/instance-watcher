@@ -4,3 +4,4 @@ layer/
 build/
 dirty.py
 setup.cfg
+exporter.sh
