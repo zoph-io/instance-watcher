@@ -154,36 +154,41 @@ def main(event, context):
                         "rs_creation_time": r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
                     })
                     print(rs_clusteridentifier,rs_status,rs_type,rs_numberofnodes,region,rs_creation_time)
-        # EC2 Checking
-        ec2con = boto3.resource('ec2', region_name=region)
-        ec2 = ec2con.instances.filter()
-        # For every instances in region
+        
+        # EC2 Checking V2
+        ec2con = boto3.client('ec2', region_name=region)
+        ec2 = ec2con.describe_instances()
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.Client.describe_instances
+        # dict
         ec2_hidden_count = 0
-        for instance in ec2:
-            if instance.state["Name"] == "running":
-                # For all instances tags
-                ec2_hidden = 0
-                instancename = "n/a"
-                for tags in instance.tags or []:
-                    if tags["Key"] == 'Name':
-                        instancename = tags["Value"]
-                    if tags["Key"] == 'iw' and tags["Value"] == 'off':
-                        ec2_hidden = 1
-                        ec2_hidden_count += 1
-                        break
-                if ec2_hidden != 1:
-                    print(instancename, instance.id)
-                    # fill the list
+
+        for r in ec2['Reservations'][0]['Instances']:
+            ec2_state = r['State']
+            ec2_type = r['InstanceType']
+            ec2_id = r['InstanceId']
+            ec2_launch_time = r['LaunchTime'].strftime("%Y-%m-%d %H:%M:%S")
+
+            # Whitelist checking
+            ec2_tags = r['Tags']
+            ec2_hidden = 0
+            instancename = "no name"
+            for tags in ec2_tags or []:
+                if tags["Key"] == 'Name':
+                    instancename = tags["Value"]
+                if tags["Key"] == 'iw' and tags["Value"] == 'off':
+                    ec2_hidden = 1
+                    ec2_hidden_count += 1
+                    break
+            if ec2_hidden != 1:
+                if ec2_state == "running":
                     running_ec2.append({
-                        "instance_name": instancename,
-                        "id": instance.id,
-                        "instance_type": instance.instance_type,
-                        "key_pair": instance.key_name,
+                        "ec2_state": r['State'],
+                        "ec2_type": r['InstanceType'],
+                        "ec2_id": r['InstanceId'],
                         "region": region,
-                        "launch_time": instance.launch_time.strftime("%Y-%m-%d %H:%M:%S")
+                        "ec2_launch_time": r['LaunchTime'].strftime("%Y-%m-%d %H:%M:%S")
                     })
-            else:
-                print("No running EC2 instance, but some exist (Pending, Stopped, Terminated or Whitelisted): ", instance.id)
+                    print(ec2_state,ec2_type,ec2_id,region,ec2_launch_time)
     
     # Exec Summary (Logging)
     print("===== Summary =====")
@@ -241,7 +246,7 @@ def main(event, context):
                     <table cellpadding="4" cellspacing="4">
                     <tr><td><strong>Name</strong></td><td><strong>Instance ID</strong></td><td><strong>Intsance Type</strong></td><td><strong>Key Name</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
                     """ + \
-                        "\n".join([f"<tr><td>{r['instance_name']}</td><td>{r['id']}</td><td>{r['instance_type']}</td><td>{r['key_pair']}</td><td>{r['region']}</td><td>{r['launch_time']}</td></tr>" for r in running_ec2]) \
+                        "\n".join([f"<tr><td>{r['instancename']}</td><td>{r['id']}</td><td>{r['instance_type']}</td><td>{r['key_pair']}</td><td>{r['region']}</td><td>{r['launch_time']}</td></tr>" for r in running_ec2]) \
                         + """
                     </table>
                     <p>Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """"""
