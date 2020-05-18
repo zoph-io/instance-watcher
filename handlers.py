@@ -45,7 +45,7 @@ def main(event, context):
         running_glue = glue(region)
         running_sage = sagemaker(region)
         running_redshift = redshift(region)
-        mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+    mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
 
 
     # Exec Summary (logger)
