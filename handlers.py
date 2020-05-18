@@ -15,7 +15,7 @@ exec(open("./services/redshift.py").read())
 exec(open("./services/mailer.py").read())
 exec(open("./services/spend.py").read())
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level = logging.INFO)
 logger = logging.getLogger()
 
 aws_region = os.environ['AWSREGION']
@@ -48,7 +48,7 @@ def main(event, context):
         mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
 
 
-    # Exec Summary (Logging)
+    # Exec Summary (logger)
 
     logger.info("===== Summary =====")
     logger.info("Current Spend (USD): %s", spend)
