@@ -2,6 +2,6 @@
 .idea
 layer/
 build/
-dirty.py
+dirty/
 setup.cfg
 exporter.sh

@@ -6,13 +6,13 @@ import os
 from datetime import datetime, timedelta
 
 # Import Python files
-exec(open("./ec2.py").read())
-exec(open("./rds.py").read())
-exec(open("./glue.py").read())
-exec(open("./sagemaker.py").read())
-exec(open("./redshift.py").read())
-exec(open("./mailer.py").read())
-exec(open("./spend.py").read())
+exec(open("./services/ec2.py").read())
+exec(open("./services/rds.py").read())
+exec(open("./services/glue.py").read())
+exec(open("./services/sagemaker.py").read())
+exec(open("./services/redshift.py").read())
+exec(open("./services/mailer.py").read())
+exec(open("./services/spend.py").read())
 
 aws_region = os.environ['AWSREGION']
 session = boto3.Session(region_name=aws_region)

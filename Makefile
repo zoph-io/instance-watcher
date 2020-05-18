@@ -48,9 +48,10 @@ verify-sender:
 
 package: clean
 	@echo "Consolidating python code in ./build"
-	mkdir -p build
+	mkdir -p build/services
 
 	cp -R *.py ./build/
+	cp -R ./services/*.py ./build/services/
 
 	@echo "zipping python code, uploading to S3 bucket, and transforming template"
 	aws cloudformation package \
