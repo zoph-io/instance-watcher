@@ -1,5 +1,6 @@
 import boto3
 import os
+from datetime import datetime, timedelta
 
 aws_region = os.environ['AWSREGION']
 session = boto3.Session(region_name=aws_region)
@@ -14,6 +15,29 @@ sender = "Instance Watcher <" + os.environ['SENDER'] + ">"
 charset = "UTF-8"
 mail_enabled = int(os.environ['ENABLEMAIL'])
 
+
+def spending():
+    # Retreive current spend for this month
+    monthly_cost = boto3.client('ce', region_name='us-east-1')
+    yesterday = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+    firstdayofmonth = datetime.today().replace(day=1).strftime('%Y-%m-%d')
+    cost = monthly_cost.get_cost_and_usage(
+    TimePeriod={
+        'Start': firstdayofmonth,
+        'End': yesterday
+    },
+    Granularity='MONTHLY',
+    Metrics=[
+        'AmortizedCost',
+    ]
+    )
+
+    for r in cost['ResultsByTime']:
+        usd = r['Total']['AmortizedCost']['Amount']
+        usd = round(float(usd), 2)
+
+    return usd
+
 def main(event, context):
     running_ec2 = []
     running_rds = []
@@ -23,6 +47,7 @@ def main(event, context):
 
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
+    spend = spending()
     #ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
     ec2_regions = ["eu-west-1"] # Troubleshooting only
     # For all AWS Regions
@@ -129,7 +154,6 @@ def main(event, context):
                         "rs_creation_time": r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
                     })
                     print(rs_clusteridentifier,rs_status,rs_type,rs_numberofnodes,region,rs_creation_time)
-
         # EC2 Checking
         ec2con = boto3.resource('ec2', region_name=region)
         ec2 = ec2con.instances.filter()
@@ -163,6 +187,7 @@ def main(event, context):
     
     # Exec Summary (Logging)
     print("===== Summary =====")
+    print("Current Spend (USD): ", spend)
     print("Total number of running EC2 instance(s):", len(running_ec2))
     print("Total number of hidden EC2 instance(s):", ec2_hidden_count)
     print("Total number of running RDS instance(s):", len(running_rds))
@@ -207,7 +232,7 @@ def main(event, context):
                 </head>
                 <body>
                     <h1>Instance Watcher 👀</h1>
-                    <p>AWS AccountID: <a href="https://""" + account + """.signin.aws.amazon.com/console">""" + account + """</a> - <a href=https://""" + alias + """.signin.aws.amazon.com/console>""" + alias + """</a></p>"""
+                    <p>AWS AccountID: <a href="https://""" + account + """.signin.aws.amazon.com/console">""" + account + """</a> - <a href=https://""" + alias + """.signin.aws.amazon.com/console>""" + alias + """</a> - Current Spend: $""" + spend + """</p>"""
             
             # Crafting EC2 html table
             if len(running_ec2) > 0:

@@ -55,23 +55,24 @@ Resources:
           Statement:
             - Effect: Allow
               Action:
-              - ec2:DescribeRegions
+              - ce:GetCostAndUsage
               - ec2:DescribeInstances
-              - redshift:DescribeClusters
               - ec2:DescribeInstanceStatus
-              - rds:DescribeDBInstances
-              - sagemaker:ListNotebookInstances
+              - ec2:DescribeRegions
               - glue:GetDevEndpoints
-              - ses:SendEmail
               - iam:GetRole
               - iam:ListAccountAliases
+              - rds:DescribeDBInstances
+              - redshift:DescribeClusters
+              - sagemaker:ListNotebookInstances
+              - ses:SendEmail
               Resource: '*'
       Events:
         Timer:
           Type: Schedule
           Properties:
             Name: instance-watcher-schedule
-            Schedule: cron(0 0 * * ? *)
+            Schedule: cron(0 18 * * ? *)
       Tags:
         Project: !Ref PROJECT
 
