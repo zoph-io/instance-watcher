@@ -23,5 +23,5 @@ def sagemaker(region):
                 "region": region,
                 "sage_creationtime": r['CreationTime'].strftime("%Y-%m-%d %H:%M:%S")
             })
-            print(sage_notebookinstancename,sage_notebookinstancestatus,sage_instancetype,sage_creationtime)
+            logging.info("%s %s %s %s", sage_notebookinstancename, sage_notebookinstancestatus, sage_instancetype, sage_creationtime)
     return running_sage

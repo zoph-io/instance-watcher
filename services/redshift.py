@@ -35,5 +35,5 @@ def redshift(region):
                     "region": region,
                     "rs_creation_time": r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
                 })
-                print(rs_clusteridentifier,rs_status,rs_type,rs_numberofnodes,region,rs_creation_time)
+                logging.info("%s %s %s %s %s %s", rs_clusteridentifier, rs_status, rs_type, rs_numberofnodes, region, rs_creation_time)
     return running_redshift
