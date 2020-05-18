@@ -22,5 +22,5 @@ def glue(region):
                 "region": region,
                 "glue_createdtimestamp": r['CreatedTimestamp'].strftime("%Y-%m-%d %H:%M:%S")
             })
-            logging.info("%s %s %s %s", glue_endpointname, glue_status, glue_numberofnodes, glue_createdtimestamp)
+            logger.info("%s %s %s %s", glue_endpointname, glue_status, glue_numberofnodes, glue_createdtimestamp)
     return running_glue

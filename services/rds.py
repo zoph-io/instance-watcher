@@ -27,5 +27,5 @@ def rds(region):
                 "region": region,
                 "launch_time": r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
             })
-        logging.info("%s %s %s %s %s %s %s", db_instance_name, db_status, db_engine, db_type, db_storage, db_creation_time, db_publicly_accessible)
+        logger.info("%s %s %s %s %s %s %s", db_instance_name, db_status, db_engine, db_type, db_storage, db_creation_time, db_publicly_accessible)
     return running_rds

@@ -3,10 +3,10 @@
 
 def mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift):
     if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0):
-        logging.info("Nothing to see here, no running instance")
+        logger.info("Nothing to see here, no running instance")
     else:
         if mail_enabled == 1:
-            logging.info("Sending email to: %s", str(recipients))
+            logger.info("Sending email to: %s", str(recipients))
             body_text = (
                         """
                         Instance Watcher\r\n
@@ -149,6 +149,6 @@ def mailer(region, alias, account, spend, running_ec2, running_rds, running_glue
                 },
                 Source=sender,
             )
-            logging.info("Email sent! Message ID: %s", response['MessageId'])
+            logger.info("Email sent! Message ID: %s", response['MessageId'])
         else:
-            logging.info("Email Notification Disabled")
+            logger.info("Email Notification Disabled")
