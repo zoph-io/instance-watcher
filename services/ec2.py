@@ -29,7 +29,6 @@ def ec2(region, running_ec2):
                     break
             if ec2_hidden != 1:
                 if ec2_state == "running":
-                    print("coucou")
                     running_ec2.append({
                         "ec2_name": instance_name,
                         "ec2_state": r['State']['Name'],

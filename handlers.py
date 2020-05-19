@@ -19,7 +19,7 @@ root = logging.getLogger()
 if root.handlers:
     for handler in root.handlers:
         root.removeHandler(handler)
-logging.basicConfig(format='%(asctime)s %(message)s',level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',level=logging.INFO)
 
 aws_region = os.environ['AWSREGION']
 session = boto3.Session(region_name=aws_region)
@@ -59,7 +59,6 @@ def main(event, context):
 
 
     # Exec Summary (logging)
-
     logging.info("===== Summary =====")
     logging.info("Current Spend (USD): %s", spend)
     logging.info("Total number of running EC2 instance(s): %s", len(running_ec2))

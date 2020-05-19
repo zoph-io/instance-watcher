@@ -2,28 +2,17 @@
 
 ## Description
 
-This AWS Lambda function will send you once a day a recap email with the list of the running instances on all AWS regions for a giver AWS Account.
+Instance Watcher will send you once a day a recap email with the list of the running instances on all AWS regions for a given AWS Account.
 
-It covers actually:
+It covers the following AWS Services:
 
 - EC2 Instances
 - RDS Instances
 - SageMaker Notebook Instances
 - Glue Development Endpoints
 - Redshift Clusters
-- EMR Clusters
 
 I'm using this for `non-prod`, `lab`, `sandbox`, and `personal` AWS accounts, to get a kindly reminder of what I've left running. :money_with_wings:
-
-## Core features
-
-* List running instances across all AWS Regions.
-  * Check `name`, `instance-id`, `instance_type`, `key_name`, `region`, `launch_time`
-* List running RDS instances across all AWS Regions.
-  * Check `db_instance_name`, `db_engine`, `db_type`, `db_storage`, `region`, `launch_time`
-* White list capability using the `iw` [tag](#Whitelisting)
-* Send summary by email once a day if any running instance
-* Serverless Architecture using AWS Lambda + `boto3` layer and Simple Email Service (`SES`)
 
 ## Requirements
 
@@ -31,7 +20,7 @@ I'm using this for `non-prod`, `lab`, `sandbox`, and `personal` AWS accounts, to
 
 ## Deployment
 
-Change emails settings and project name in `Makefile` or use command-line
+Change emails settings and project name in `Makefile` or use command-line.
 
 > Nb: Recipients are **space-delimited**
 
@@ -51,8 +40,8 @@ ENABLEMAIL := 1
                 ENV=<your_env_name> \
                 AWSREGION=<your_aws_region> \
                 PROJECT=<your_project_name> \
-                SENDER=sender@youremail.com \
-                RECIPIENTS='targetemail@youremail.com targetemail2@youremail.com'
+                SENDER=<your_sender@your_domain.com> \
+                RECIPIENTS='target_email@your_domain.com target_email2@your_domain.com'
 
 *Nb: Use emails in the command line is optional if you've already set up in the `Makefile`*
 
@@ -82,8 +71,6 @@ If you want to whitelist a specific instance to be hidden from the daily report,
 * Whitelist for `RDS Instances`
 * Add python unit tests 😢
 * Multi AWS Account Support
-* Add `Instance Profile` column for `EC2`
 * ~~Add pricing information~~
-* ~~Actionable `mail_enabled` with variable~~
 * Slack/Teams Notifications
 * Alert on crash (CloudWatch)
