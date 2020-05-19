@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # Glue Development Endpoint Checking
-def glue(region):
+def glue(region, running_glue):
     gluecon = boto3.client('glue', region_name=region)
     glue = gluecon.get_dev_endpoints()
-    running_glue = []
+
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/glue.html#Glue.Client.get_dev_endpoints
     # dict
     for r in glue['DevEndpoints']:
@@ -22,5 +22,5 @@ def glue(region):
                 "region": region,
                 "glue_createdtimestamp": r['CreatedTimestamp'].strftime("%Y-%m-%d %H:%M:%S")
             })
-            logger.info("%s %s %s %s", glue_endpointname, glue_status, glue_numberofnodes, glue_createdtimestamp)
+            logging.info("%s %s %s %s", glue_endpointname, glue_status, glue_numberofnodes, glue_createdtimestamp)
     return running_glue

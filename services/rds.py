@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # RDS Checking
-def rds(region):
+def rds(region, running_rds):
     rdscon = boto3.client('rds', region_name=region)
     rds = rdscon.describe_db_instances()
-    running_rds = []
+
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/rds.html#RDS.Client.describe_db_instances
     # dict
     for r in rds['DBInstances']:
@@ -27,5 +27,5 @@ def rds(region):
                 "region": region,
                 "launch_time": r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
             })
-        logger.info("%s %s %s %s %s %s %s", db_instance_name, db_status, db_engine, db_type, db_storage, db_creation_time, db_publicly_accessible)
+        logging.info("%s %s %s %s %s %s %s", db_instance_name, db_status, db_engine, db_type, db_storage, db_creation_time, db_publicly_accessible)
     return running_rds

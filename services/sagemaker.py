@@ -3,10 +3,10 @@
 # -*- coding: utf-8 -*-
 
 # SageMaker Notebook Instances Checking
-def sagemaker(region):
+def sagemaker(region, running_sage):
     sagecon = boto3.client('sagemaker', region_name=region)
     sage = sagecon.list_notebook_instances()
-    running_sage = []
+
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker.html#SageMaker.Client.list_notebook_instances
     # dict
     for r in sage['NotebookInstances']:
@@ -23,5 +23,5 @@ def sagemaker(region):
                 "region": region,
                 "sage_creationtime": r['CreationTime'].strftime("%Y-%m-%d %H:%M:%S")
             })
-            logger.info("%s %s %s %s", sage_notebookinstancename, sage_notebookinstancestatus, sage_instancetype, sage_creationtime)
+            logging.info("%s %s %s %s", sage_notebookinstancename, sage_notebookinstancestatus, sage_instancetype, sage_creationtime)
     return running_sage

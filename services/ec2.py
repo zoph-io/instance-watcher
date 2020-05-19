@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # EC2 Checking V2
-def ec2(region):
+def ec2(region, running_ec2):
     ec2con = boto3.client('ec2', region_name=region)
     reservations = ec2con.describe_instances()['Reservations']
-    running_ec2 = []
     ec2_hidden_count = 0
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.Client.describe_instances
     # dict
@@ -30,6 +29,7 @@ def ec2(region):
                     break
             if ec2_hidden != 1:
                 if ec2_state == "running":
+                    print("coucou")
                     running_ec2.append({
                         "ec2_name": instance_name,
                         "ec2_state": r['State']['Name'],
@@ -38,5 +38,5 @@ def ec2(region):
                         "region": region,
                         "ec2_launch_time": r['LaunchTime'].strftime("%Y-%m-%d %H:%M:%S")
                     })
-                    logger.info("%s %s %s %s %s %s", instance_name, ec2_state, ec2_type, ec2_id, region, ec2_launch_time)
+                    logging.info("%s %s %s %s %s %s", instance_name, ec2_state, ec2_type, ec2_id, region, ec2_launch_time)
     return running_ec2
