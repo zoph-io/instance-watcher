@@ -25,6 +25,7 @@ DESCRIPTION ?= Instance Watcher Stack
 S3_BUCKET ?= instance-watcher-${PROJECT}-${ENV}-artifacts
 AWS_REGION ?= eu-west-1
 ENV ?= dev
+WHITELISTTAG := watcher
 # Recipients are space delimited (ie: john@doe.com david@doe.com)
 RECIPIENTS := victor.grenu@external.engie.com jeremy.monnier@external.engie.com
 SENDER := victor.grenu@external.engie.com
@@ -80,6 +81,8 @@ deploy:
 			SENDER=${SENDER} \
 			PROJECT=instance-watcher-${PROJECT} \
 			AWSREGION=${AWS_REGION} \
+			ENABLEMAIL=${ENABLEMAIL} \
+			WHITELISTTAG=${WHITELISTTAG} \
 		--no-fail-on-empty-changeset
 
 tear-down:

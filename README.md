@@ -24,15 +24,18 @@ I'm using this for `non-prod`, `lab/training`, `sandbox`, or `personal` AWS acco
 
 ## Deployment
 
-Change emails settings and project name in `Makefile` or use command-line.
+Change default settings in `Makefile` or use command-line.
 
 > Nb: Recipients are **space-delimited**
+
+### Parameters
 
 ```bash
 PROJECT ?= my_project_name
 RECIPIENTS := my_target_email@domain.com my_second_target@domain.com
 SENDER := my_source_email@domain.com
 ENABLEMAIL := 1
+WHITELISTTAG := watcher
 ```
 
 > You will need to verify email received from AWS SES (for SENDER) using `make verify-sender`
@@ -61,7 +64,7 @@ If you want to whitelist a specific instance to be hidden from the daily report,
 |:---:|:-----:|
 | `watcher` | `off` |
 
-*nb: Tag `Key` is customizable in `handlers.py`*
+*nb: Tag `Key` is customizable in `Makefile`*
 
 ## Todo
 

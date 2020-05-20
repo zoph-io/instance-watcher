@@ -28,6 +28,10 @@ Parameters:
     Type: String
     Default: 1
     Description: Activate Email Notification
+  WHITELISTTAG:
+    Type: String
+    Default: watcher
+    Description: Whitelist Tag Key
 ###########################################################
 Resources:
 ###########################################################
@@ -49,6 +53,7 @@ Resources:
           SENDER: !Ref SENDER
           AWSREGION: !Ref AWSREGION
           ENABLEMAIL: !Ref ENABLEMAIL
+          WHITELISTTAG: !Ref WHITELISTTAG
       Policies:
         - AWSLambdaExecute # Managed Policy
         - Version: '2012-10-17' # Policy Document
