@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 
 # RDS Checking
-def rds(region, running_rds):
+def rds(region, running_rds, whitelist_tag):
     rdscon = boto3.client('rds', region_name=region)
     rds = rdscon.describe_db_instances()
     rds_hidden_count = 0
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/rds.html#RDS.Client.describe_db_instances
     # dict
     for r in rds['DBInstances']:
+        db_status = r['DBInstanceStatus']
         db_instance_name = r['DBInstanceIdentifier']
         db_instance_arn = r['DBInstanceArn']
         db_engine =  r['Engine']
-        db_status = r['DBInstanceStatus']
         db_type = r['DBInstanceClass']
         db_storage = r['AllocatedStorage']
         db_creation_time = r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
@@ -23,7 +23,7 @@ def rds(region, running_rds):
         rds_tags = instance_tags['TagList']
         rds_hidden = 0
         for tags in rds_tags or []:
-            if tags["Key"] == 'iw' and tags["Value"] == 'off':
+            if tags["Key"] == whitelist_tag and tags["Value"] == 'off':
                 rds_hidden = 1
                 rds_hidden_count += 1
                 break

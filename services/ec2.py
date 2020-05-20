@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # EC2 Checking V2
-def ec2(region, running_ec2):
+def ec2(region, running_ec2, whitelist_tag):
     ec2con = boto3.client('ec2', region_name=region)
     reservations = ec2con.describe_instances()['Reservations']
     ec2_hidden_count = 0
@@ -23,7 +23,7 @@ def ec2(region, running_ec2):
             for tags in ec2_tags or []:
                 if tags["Key"] == 'Name':
                     instance_name = tags["Value"]
-                if tags["Key"] == 'iw' and tags["Value"] == 'off':
+                if tags["Key"] == whitelist_tag and tags["Value"] == 'off':
                     ec2_hidden = 1
                     ec2_hidden_count += 1
                     break
