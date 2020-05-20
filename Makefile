@@ -15,7 +15,6 @@ help:
 	@echo "	clean - clean the build folder"
 	@echo "	clean-layer - clean the layer folder"
 	@echo "	cleaning - clean build and layer folders"
-	@echo "	test-id - test unique id generator"
 
 ####################### Project #######################
 PROJECT ?= discover
@@ -33,9 +32,6 @@ SENDER := victor.grenu@external.engie.com
 # Activate Email Notification
 ENABLEMAIL := 1
 #######################################################
-
-test-id:
-	@echo ${ID}
 
 artifacts:
 	@echo "Creation of artifacts bucket"
