@@ -5,7 +5,6 @@
 def redshift(region, running_redshift):
     redshiftcon = boto3.client('redshift', region_name=region)
     redshift = redshiftcon.describe_clusters()
-
     rs_hidden_count = 0
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/redshift.html#Redshift.Client.describe_clusters
     # dict
@@ -35,5 +34,5 @@ def redshift(region, running_redshift):
                     "region": region,
                     "rs_creation_time": r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
                 })
-                logging.info("%s %s %s %s %s %s", rs_clusteridentifier, rs_status, rs_type, rs_numberofnodes, region, rs_creation_time)
+                logging.info("Matched!: %s %s %s %s %s %s", rs_clusteridentifier, rs_status, rs_type, rs_numberofnodes, region, rs_creation_time)
     return running_redshift

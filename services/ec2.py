@@ -37,5 +37,5 @@ def ec2(region, running_ec2):
                         "region": region,
                         "ec2_launch_time": r['LaunchTime'].strftime("%Y-%m-%d %H:%M:%S")
                     })
-                    logging.info("%s %s %s %s %s %s", instance_name, ec2_state, ec2_type, ec2_id, region, ec2_launch_time)
+                    logging.info("Matched!: %s %s %s %s %s %s", instance_name, ec2_state, ec2_type, ec2_id, region, ec2_launch_time)
     return running_ec2
