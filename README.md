@@ -12,7 +12,11 @@ It covers the following AWS Services:
 - Glue Development Endpoints
 - Redshift Clusters
 
-I'm using this for `non-prod`, `lab`, `sandbox`, and `personal` AWS accounts, to get a kindly reminder of what I've left running. :money_with_wings:
+I'm using this for `non-prod`, `lab/training`, `sandbox`, or `personal` AWS accounts, to get a kindly reminder of what I've left running. :money_with_wings:
+
+## Sneak Peek
+
+![Mail Sample](assets/mail-sample.png)
 
 ## Requirements
 
@@ -55,7 +59,9 @@ If you want to whitelist a specific instance to be hidden from the daily report,
 
 | Key | Value |
 |:---:|:-----:|
-| `iw` | `off` |
+| `watcher` | `off` |
+
+*nb: Tag `Key` is customizable in `handlers.py`*
 
 ## Todo
 
@@ -63,14 +69,3 @@ If you want to whitelist a specific instance to be hidden from the daily report,
   * Whitelist
 * ~~Add `Glue Dev Endpoints`~~
   * Whitelist
-* ~~Add `Redshift Cluster`~~
-  * ~~Whitelist~~
-* Add `EMR`
-  * Whitelist
-* ~~Add SES setup built-in~~
-* Whitelist for `RDS Instances`
-* Add python unit tests 😢
-* Multi AWS Account Support
-* ~~Add pricing information~~
-* Slack/Teams Notifications
-* Alert on crash (CloudWatch)
