@@ -15,6 +15,7 @@ help:
 	@echo "	clean - clean the build folder"
 	@echo "	clean-layer - clean the layer folder"
 	@echo "	cleaning - clean build and layer folders"
+	@echo "	test-id - test unique id generator"
 
 ####################### Project #######################
 PROJECT ?= discover
@@ -22,16 +23,19 @@ DESCRIPTION ?= Instance Watcher Stack
 #######################################################
 
 ###################### Variables ######################
-S3_BUCKET ?= instance-watcher-${PROJECT}-artifacts
+S3_BUCKET ?= instance-watcher-${PROJECT}-${ENV}-artifacts
 AWS_REGION ?= eu-west-1
 ENV ?= dev
 # Recipients are space delimited (ie: john@doe.com david@doe.com)
-RECIPIENTS := victor.grenu@external.engie.com
+RECIPIENTS := victor.grenu@external.engie.com jeremy.monnier@external.engie.com
 SENDER := victor.grenu@external.engie.com
 
 # Activate Email Notification
 ENABLEMAIL := 1
 #######################################################
+
+test-id:
+	@echo ${ID}
 
 artifacts:
 	@echo "Creation of artifacts bucket"
