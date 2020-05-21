@@ -21,11 +21,17 @@ PROJECT ?= discover
 DESCRIPTION ?= Instance Watcher Stack
 #######################################################
 
-###################### Variables ######################
+###################### Parameters ######################
 S3_BUCKET ?= instance-watcher-${PROJECT}-${ENV}-artifacts
 AWS_REGION ?= eu-west-1
 ENV ?= dev
 WHITELISTTAG := watcher
+## Slack
+EnableSlack := 0
+SlackWebHook := ""
+## Microsoft Teams
+EnableTeams := 0
+TeamsWebHook := ""
 # Recipients are space delimited (ie: john@doe.com david@doe.com)
 RECIPIENTS := victor.grenu@external.engie.com jeremy.monnier@external.engie.com
 SENDER := victor.grenu@external.engie.com
@@ -83,6 +89,8 @@ deploy:
 			AWSREGION=${AWS_REGION} \
 			ENABLEMAIL=${ENABLEMAIL} \
 			WHITELISTTAG=${WHITELISTTAG} \
+			EnableSlack=${EnableSlack} \
+			EnableTeams=${EnableTeams} \
 		--no-fail-on-empty-changeset
 
 tear-down:

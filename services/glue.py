@@ -9,6 +9,7 @@ def glue(region, running_glue, whitelist_tag):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/glue.html#Glue.Client.get_dev_endpoints
     # dict
     for r in glue['DevEndpoints']:
+        logging.debug("%s", r)
         glue_status = r['Status']
         glue_endpointname = r['EndpointName']
         glue_arn = r['']
@@ -20,6 +21,7 @@ def glue(region, running_glue, whitelist_tag):
         glue_tags = instance_tags['TagList']
         glue_hidden = 0
         for tags in glue_tags or []:
+            logging.debug("%s", tags)
             if tags["Key"] == whitelist_tag and tags["Value"] == 'off':
                 glue_hidden = 1
                 glue_hidden_count += 1

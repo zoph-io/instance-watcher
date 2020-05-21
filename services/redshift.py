@@ -8,8 +8,8 @@ def redshift(region, running_redshift, whitelist_tag):
     rs_hidden_count = 0
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/redshift.html#Redshift.Client.describe_clusters
     # dict
-
     for r in redshift['Clusters']:
+        logging.debug("%s", r)
         rs_status = r['ClusterStatus']
         rs_clusteridentifier = r['ClusterIdentifier']
         rs_type = r['NodeType']
@@ -20,12 +20,13 @@ def redshift(region, running_redshift, whitelist_tag):
         rs_tags = r['Tags']
         rs_hidden = 0
         for tags in rs_tags or []:
+            logging.debug("%s", tags)
             if tags["Key"] == whitelist_tag and tags["Value"] == 'off':
                 rs_hidden = 1
                 rs_hidden_count += 1
                 break
         if rs_hidden != 1:
-            if rs_status == "available" or "storage-full" or "resizing":
+            if rs_status == "available" or rs_status == "storage-full" or rs_status == "resizing":
                 running_redshift.append({
                     "rs_clusteridentifier": r['ClusterIdentifier'],
                     "rs_status": r['ClusterStatus'],

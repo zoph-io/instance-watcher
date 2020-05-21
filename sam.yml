@@ -25,13 +25,25 @@ Parameters:
     Default: instance-watcher
     Description: Project Name
   ENABLEMAIL:
-    Type: String
+    Type: Number
     Default: 1
     Description: Activate Email Notification
   WHITELISTTAG:
     Type: String
     Default: watcher
     Description: Whitelist Tag Key
+  EnableSlack:
+    Type: Number
+    Default: 0
+  SlackWebHook:
+    Type: String
+    Description: Slack WebHook URL
+  EnableTeams:
+    Type: Number
+    Default: 0
+  TeamsWebHook:
+    Type: String
+    Description: Microsoft Teams WebHook URL
 ###########################################################
 Resources:
 ###########################################################
@@ -54,6 +66,10 @@ Resources:
           AWSREGION: !Ref AWSREGION
           ENABLEMAIL: !Ref ENABLEMAIL
           WHITELISTTAG: !Ref WHITELISTTAG
+          EnableSlack: !Ref EnableSlack
+          SlackWebHook: !Ref SlackWebHook
+          EnableTeams: !Ref EnableTeams
+          TeamsWebHook: !Ref TeamsWebHook
       Policies:
         - AWSLambdaExecute # Managed Policy
         - Version: '2012-10-17' # Policy Document
@@ -80,6 +96,8 @@ Resources:
             Schedule: cron(0 18 * * ? *)
       Tags:
         Project: !Ref PROJECT
+        CloudFormation: "True"
+        Information: "github.com/z0ph/instance-watcher"
 
   boto3layer:
     Type: 'AWS::Serverless::LayerVersion'

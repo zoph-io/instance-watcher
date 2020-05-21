@@ -8,9 +8,9 @@ def ec2(region, running_ec2, whitelist_tag):
     ec2_hidden_count = 0
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.Client.describe_instances
     # dict
-
     for reservation in reservations:
         for r in reservation['Instances']:
+            logging.debug("%s", r)
             ec2_state = r['State']['Name']
             ec2_type = r['InstanceType']
             ec2_id = r['InstanceId']
@@ -21,6 +21,7 @@ def ec2(region, running_ec2, whitelist_tag):
             ec2_hidden = 0
             instance_name = "no name"
             for tags in ec2_tags or []:
+                logging.debug("%s", tags)
                 if tags["Key"] == 'Name':
                     instance_name = tags["Value"]
                 if tags["Key"] == whitelist_tag and tags["Value"] == 'off':
