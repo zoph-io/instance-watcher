@@ -40,12 +40,14 @@ Parameters:
     Default: 0
   SlackWebHook:
     Type: String
+    Default: "not set"
     Description: Slack WebHook URL
   EnableTeams:
     Type: Number
     Default: 0
   TeamsWebHook:
     Type: String
+    Default: "not set"
     Description: Microsoft Teams WebHook URL
 ###########################################################
 Resources:
@@ -90,6 +92,7 @@ Resources:
               - rds:DescribeDBInstances
               - redshift:DescribeClusters
               - sagemaker:ListNotebookInstances
+              - sagemaker:ListTags
               - ses:SendEmail
               Resource: '*'
       Events:

@@ -59,9 +59,16 @@ verify-sender:
 package: clean
 	@echo "Consolidating python code in ./build"
 	mkdir -p build/services
+	mkdir -p build/utils
 
 	cp -R *.py ./build/
 	cp -R ./services/*.py ./build/services/
+	cp -R ./utils/*.py ./build/utils/
+
+	pip3 install \
+		--isolated \
+		--disable-pip-version-check \
+		-Ur requirements.txt -t ./build/
 
 	@echo "zipping python code, uploading to S3 bucket, and transforming template"
 	aws cloudformation package \
@@ -76,16 +83,16 @@ layer: clean-layer
 	pip3 install \
 		--isolated \
 		--disable-pip-version-check \
-		-Ur requirements.txt -t ./layer/
+		-Ur requirements-layer.txt -t ./layer/
 
 deploy:
 	aws cloudformation deploy \
 		--template-file build/template-lambda.yml \
 		--region ${AWSRegion} \
-		--stack-name "instance-watcher-${Project}-${ENV}" \
+		--stack-name "instance-watcher-${Project}-${Env}" \
 		--capabilities CAPABILITY_IAM \
 		--parameter-overrides \
-			Env=${ENV} \
+			Env=${Env} \
 			Recipients="${Recipients}" \
 			Sender=${Sender} \
 			Project=instance-watcher-${Project} \
@@ -93,13 +100,15 @@ deploy:
 			WhitelistTag=${WhitelistTag} \
 			EnableMail=${EnableMail} \
 			EnableSlack=${EnableSlack} \
+			TeamsWebHook=${TeamsWebHook} \
+			SlackWebHook=${SlackWebHook} \
 			EnableTeams=${EnableTeams} \
 			CronSchedule=${CronSchedule} \
 		--no-fail-on-empty-changeset
 
 tear-down:
-	@read -p "Are you sure that you want to destroy stack 'instance-watcher-${Project}-${ENV}'? [y/N]: " sure && [ $${sure:-N} = 'y' ]
-	aws cloudformation delete-stack --stack-name "instance-watcher-${Project}-${ENV}"
+	@read -p "Are you sure that you want to destroy stack 'instance-watcher-${Project}-${Env}'? [y/N]: " sure && [ $${sure:-N} = 'y' ]
+	aws cloudformation delete-stack --stack-name "instance-watcher-${Project}-${Env}"
 
 clean-layer:
 	@rm -fr layer/

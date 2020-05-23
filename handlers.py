@@ -60,8 +60,8 @@ def main(event, context):
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
     spend = spending()
-    #ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
-    ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
+    ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
+    #ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
 
     running_ec2 = []
     running_rds = []
