@@ -4,31 +4,34 @@ Description: Instance Watcher Stack
 ###########################################################
 Parameters:
 ###########################################################
-  ENV:
+  Env:
     Type: String
     Default: dev
     Description: Environment Name
-  AWSREGION:
+  AWSRegion:
     Type: String
     Default: eu-west-1
     Description: AWS Region
-  RECIPIENTS:
+  CronSchedule:
+    Type: String
+    Description: Cron Schedule
+  Recipients:
     Type: String
     Default: john@doe.com
     Description: List of recipients
-  SENDER:
+  Sender:
     Type: String
     Default: no-reply@doe.com
     Description: Sender
-  PROJECT:
+  Project:
     Type: String
     Default: instance-watcher
     Description: Project Name
-  ENABLEMAIL:
+  EnableMail:
     Type: Number
     Default: 1
     Description: Activate Email Notification
-  WHITELISTTAG:
+  WhitelistTag:
     Type: String
     Default: watcher
     Description: Whitelist Tag Key
@@ -50,7 +53,7 @@ Resources:
   InstanceWatcherFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      FunctionName: !Sub ${PROJECT}-${ENV}
+      FunctionName: !Sub ${Project}-${Env}
       Description: Monitoring Running Instances + Email Alerting
       Handler: handlers.main
       Runtime: python3.7
@@ -61,15 +64,16 @@ Resources:
         - !Ref boto3layer
       Environment:
         Variables:
-          RECIPIENTS: !Ref RECIPIENTS
-          SENDER: !Ref SENDER
-          AWSREGION: !Ref AWSREGION
-          ENABLEMAIL: !Ref ENABLEMAIL
-          WHITELISTTAG: !Ref WHITELISTTAG
+          Recipients: !Ref Recipients
+          Sender: !Ref Sender
+          AWSRegion: !Ref AWSRegion
+          EnableMail: !Ref EnableMail
+          WhitelistTag: !Ref WhitelistTag
           EnableSlack: !Ref EnableSlack
           SlackWebHook: !Ref SlackWebHook
           EnableTeams: !Ref EnableTeams
           TeamsWebHook: !Ref TeamsWebHook
+          CronSchedule: !Ref CronSchedule
       Policies:
         - AWSLambdaExecute # Managed Policy
         - Version: '2012-10-17' # Policy Document
@@ -93,9 +97,9 @@ Resources:
           Type: Schedule
           Properties:
             Name: instance-watcher-schedule
-            Schedule: cron(0 18 * * ? *)
+            Schedule: !Sub cron(${CronSchedule})
       Tags:
-        Project: !Ref PROJECT
+        Project: !Ref Project
         CloudFormation: "True"
         Information: "github.com/z0ph/instance-watcher"
 

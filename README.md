@@ -2,7 +2,9 @@
 
 ## Description
 
-Instance Watcher will send you once a day a recap email with the list of the running instances on all AWS regions for a given AWS Account.
+AWS Instance Watcher will send you once a day a recap notification with the list of the running instances on all AWS regions for a given AWS Account.
+
+Useful for `non-prod`, `lab/training`, `sandbox`, or `personal` AWS accounts, to get a kindly reminder of what you've left running. :money_with_wings:
 
 It covers the following AWS Services:
 
@@ -12,43 +14,64 @@ It covers the following AWS Services:
 - Glue Development Endpoints
 - Redshift Clusters
 
-I'm using this for `non-prod`, `lab/training`, `sandbox`, or `personal` AWS accounts, to get a kindly reminder of what I've left running. :money_with_wings:
+Notifications could be:
+- Slack Message
+- Microsoft Teams Message
+- Email
+
+## Features
+
+- Cron Schedule
+- Whitelisting
+- Month to Date (MTD) Spending
+- Slack Notifications *(Optional)*
+- Microsoft Teams Notifications *(Optional)*
+- Emails Notifications *(Optional)*
+- Serverless Architecture
 
 ## Sneak Peek
 
+### Email Notification
+
 ![Mail Sample](assets/mail-sample.png)
+
+### Slack Notification
+
+![Slack Sample](assets/slack-sample.png)
+
+### Teams Notification
+
+![Teams Sample](assets/teams-sample.png)
 
 ## Requirements
 
-> Before you can send an email using Amazon SES, you must verify the address or domain that you are sending the email from to prove that you own it. If you do not have production access yet, you also need to verify any email addresses that you send emails to except for email addresses provided by the Amazon SES mailbox simulator.
+> AWS SES: Before you can send an email using Amazon SES, you must verify the address or domain that you are sending the email from to prove that you own it. If you do not have production access yet, you also need to verify any email addresses that you send emails to except for email addresses provided by the Amazon SES mailbox simulator.
 
 ## Deployment
 
-Change default settings in `Makefile` or use command-line.
+Change default settings in `Makefile` or use directly the command-line.
 
 > Nb: Recipients are **space-delimited**
 
 ### Parameters
 
 ```bash
-PROJECT ?= my_project_name
-RECIPIENTS := my_target_email@domain.com my_second_target@domain.com
-SENDER := my_source_email@domain.com
-ENABLEMAIL := 1
-WHITELISTTAG := watcher
+Project ?= my_project_name
+Recipients := my_target_email@domain.com my_second_target@domain.com
+Sender := my_source_email@domain.com
+EnableMail := 1
+EnableSlack := 0
+SlackWebHook := ""
+EnableTeams := 0
+TeamsWebHook := ""
+WhistelistTag := watcher
+CronSchedule := 0 18 * * ? *
 ```
 
-> You will need to verify email received from AWS SES (for SENDER) using `make verify-sender`
-
         $ make layer
-        $ make package PROJECT=<your_project_name>
+        $ make package Project=<your_project_name>
         $ make verify-sender
-        $ make deploy \
-                ENV=<your_env_name> \
-                AWSREGION=<your_aws_region> \
-                PROJECT=<your_project_name> \
-                SENDER=<your_sender@your_domain.com> \
-                RECIPIENTS='target_email@your_domain.com target_email2@your_domain.com'
+        $ make deploy
 
 *Nb: Use emails in the command line is optional if you've already set up in the `Makefile`*
 

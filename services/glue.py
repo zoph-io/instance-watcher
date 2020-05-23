@@ -10,7 +10,7 @@ def glue(region, running_glue, whitelist_tag):
     # dict
     for r in glue['DevEndpoints']:
         logging.debug("%s", r)
-        glue_status = r['Status']
+        glue_status = r['Status'] # https://docs.aws.amazon.com/glue/latest/dg/console-development-endpoint.html
         glue_endpointname = r['EndpointName']
         glue_arn = r['']
         glue_numberofnodes = r['NumberOfNodes']

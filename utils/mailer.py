@@ -5,7 +5,7 @@ def mailer(region, alias, account, spend, running_ec2, running_rds, running_glue
     if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0):
         logging.info("Nothing to see here, no running instance")
     else:
-        if mail_enabled == 1:
+        if enable_mail == 1:
             logging.info("Sending email to: %s", str(recipients))
             body_text = (
                         """

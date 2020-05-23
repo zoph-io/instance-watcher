@@ -10,7 +10,7 @@ def rds(region, running_rds, whitelist_tag):
     # dict
     for r in rds['DBInstances']:
         logging.debug("%s", r)
-        db_status = r['DBInstanceStatus']
+        db_status = r['DBInstanceStatus'] # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Status.html
         if db_status != "creating" or "deleting" or "failed":
             db_instance_name = r['DBInstanceIdentifier']
             db_instance_arn = r['DBInstanceArn']
