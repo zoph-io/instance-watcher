@@ -25,7 +25,7 @@ Description ?= Instance Watcher Stack
 S3Bucket ?= instance-watcher-${Project}-${Env}-artifacts
 AWSRegion ?= eu-west-1
 Env ?= dev
-WhistelistTag := watcher
+WhitelistTag := watcher
 ## Slack
 EnableSlack := 0
 SlackWebHook := ""
