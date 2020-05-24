@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Glue Development Endpoint Checking
-def glue(region, running_glue, whitelist_tag):
+def glue(region, running_glue, whitelist_tag, account):
     gluecon = boto3.client('glue', region_name=region)
     glue = gluecon.get_dev_endpoints()
     glue_hidden_count = 0
@@ -12,21 +12,18 @@ def glue(region, running_glue, whitelist_tag):
         logging.debug("%s", r)
         glue_status = r['Status'] # https://docs.aws.amazon.com/glue/latest/dg/console-development-endpoint.html
         glue_endpointname = r['EndpointName']
-        glue_arn = r['']
+        glue_arn = "arn:aws:glue:" + region + ":" + account + ":devEndpoint/" + glue_endpointname
         glue_numberofnodes = r['NumberOfNodes']
         glue_createdtimestamp = r['CreatedTimestamp'].strftime("%Y-%m-%d %H:%M:%S")
         
         # Whitelist checking
         instance_tags = gluecon.get_tags(ResourceArn=glue_arn)
-        glue_tags = instance_tags['TagList']
-        glue_hidden = 0
-        for tags in glue_tags or []:
-            logging.debug("%s", tags)
-            if tags["Key"] == whitelist_tag and tags["Value"] == 'off':
-                glue_hidden = 1
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/glue.html#Glue.Client.get_tags
+        glue_tags = instance_tags['Tags']
+        if whitelist_tag in glue_tags:
+            if whitelist_tag == 'off':
                 glue_hidden_count += 1
-                break
-        if glue_hidden != 1:
+        else:
             if glue_status == "READY":
                 running_glue.append({
                     "glue_endpointname": r['EndpointName'],
