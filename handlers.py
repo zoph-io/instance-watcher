@@ -77,7 +77,7 @@ def main(event, context):
         logging.debug("Checking RDS")
         running_rds = rds(region, running_rds, whitelist_tag)
         logging.debug("Checking Glue")
-        running_glue = glue(region, running_glue, whitelist_tag)
+        running_glue = glue(region, running_glue, whitelist_tag, account)
         logging.debug("Checking SageMaker")
         running_sage = sagemaker(region, running_sage, whitelist_tag)
         logging.debug("Checking Redshift")
