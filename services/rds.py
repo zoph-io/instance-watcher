@@ -11,7 +11,7 @@ def rds(region, running_rds, whitelist_tag):
     for r in rds['DBInstances']:
         logging.debug("%s", r)
         db_status = r['DBInstanceStatus'] # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Status.html
-        if db_status != "creating" or "deleting" or "failed":
+        if db_status != "creating" or db_status != "deleting" or db_status != "failed":
             db_instance_name = r['DBInstanceIdentifier']
             db_instance_arn = r['DBInstanceArn']
             db_engine =  r['Engine']
