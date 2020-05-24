@@ -11,7 +11,7 @@ def rds(region, running_rds, whitelist_tag):
     for r in rds['DBInstances']:
         logging.debug("%s", r)
         db_status = r['DBInstanceStatus'] # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Status.html
-        if db_status != "creating" or db_status != "deleting" or db_status != "failed":
+        if db_status != "creating":
             db_instance_name = r['DBInstanceIdentifier']
             db_instance_arn = r['DBInstanceArn']
             db_engine =  r['Engine']
@@ -49,4 +49,6 @@ def rds(region, running_rds, whitelist_tag):
                         "launch_time": r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
                     })
                     logging.info("Matched!: %s %s %s %s %s %s %s", db_instance_name, db_status, db_engine, db_type, db_storage, db_creation_time, db_publicly_accessible)
+        else:
+            logging.info("An RDS instance is creating")
     return running_rds
