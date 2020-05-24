@@ -1,12 +1,12 @@
 # Instance Watcher :eyes:
 
-## Description
+## Introduction
 
 AWS Instance Watcher will send you once a day a recap notification with the list of the running instances on all AWS regions for a given AWS Account.
 
 Useful for `non-prod`, `lab/training`, `sandbox`, or `personal` AWS accounts, to get a kindly reminder of what you've left running. :money_with_wings:
 
-It covers the following AWS Services:
+Currently, It covers the following AWS Services:
 
 - EC2 Instances
 - RDS Instances
