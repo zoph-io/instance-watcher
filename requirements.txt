@@ -1,1 +1,2 @@
-boto3
+slack-webhook==1.0.3
+pymsteams==0.1.12

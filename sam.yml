@@ -1,71 +1,110 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: Provision the AWS Lambda function
+Description: Instance Watcher Stack
 ###########################################################
 Parameters:
 ###########################################################
-  ENV:
+  Env:
     Type: String
     Default: dev
     Description: Environment Name
-  AWSREGION:
+  AWSRegion:
     Type: String
-    Default: dev
+    Default: eu-west-1
     Description: AWS Region
-  RECIPIENTS:
+  CronSchedule:
+    Type: String
+    Description: Cron Schedule
+  Recipients:
     Type: String
     Default: john@doe.com
     Description: List of recipients
-  SENDER:
+  Sender:
     Type: String
-    Default: john@doe.com
+    Default: no-reply@doe.com
     Description: Sender
-  PROJECT:
+  Project:
     Type: String
-    Default: dev
+    Default: instance-watcher
     Description: Project Name
+  EnableMail:
+    Type: Number
+    Default: 1
+    Description: Activate Email Notification
+  WhitelistTag:
+    Type: String
+    Default: watcher
+    Description: Whitelist Tag Key
+  EnableSlack:
+    Type: Number
+    Default: 0
+  SlackWebHook:
+    Type: String
+    Default: "not set"
+    Description: Slack WebHook URL
+  EnableTeams:
+    Type: Number
+    Default: 0
+  TeamsWebHook:
+    Type: String
+    Default: "not set"
+    Description: Microsoft Teams WebHook URL
 ###########################################################
 Resources:
 ###########################################################
   InstanceWatcherFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      FunctionName: !Sub instance-watcher-${ENV}
-      Description: Monitoring Running EC2/RDS Instances
+      FunctionName: !Sub ${Project}-${Env}
+      Description: Monitoring Running Instances + Email Alerting
       Handler: handlers.main
       Runtime: python3.7
       CodeUri: ./build
       MemorySize: 256
-      Timeout: 120
+      Timeout: 300
       Layers:
         - !Ref boto3layer
       Environment:
         Variables:
-          RECIPIENTS: !Ref RECIPIENTS
-          SENDER: !Ref SENDER
-          AWSREGION: !Ref AWSREGION
+          Recipients: !Ref Recipients
+          Sender: !Ref Sender
+          AWSRegion: !Ref AWSRegion
+          EnableMail: !Ref EnableMail
+          WhitelistTag: !Ref WhitelistTag
+          EnableSlack: !Ref EnableSlack
+          SlackWebHook: !Ref SlackWebHook
+          EnableTeams: !Ref EnableTeams
+          TeamsWebHook: !Ref TeamsWebHook
+          CronSchedule: !Ref CronSchedule
       Policies:
         - AWSLambdaExecute # Managed Policy
         - Version: '2012-10-17' # Policy Document
           Statement:
             - Effect: Allow
               Action:
-              - ec2:DescribeRegions
+              - ce:GetCostAndUsage
               - ec2:DescribeInstances
               - ec2:DescribeInstanceStatus
-              - rds:DescribeDBInstances
-              - ses:SendEmail
+              - ec2:DescribeRegions
+              - glue:GetDevEndpoints
               - iam:GetRole
               - iam:ListAccountAliases
+              - rds:DescribeDBInstances
+              - redshift:DescribeClusters
+              - sagemaker:ListNotebookInstances
+              - sagemaker:ListTags
+              - ses:SendEmail
               Resource: '*'
       Events:
         Timer:
           Type: Schedule
           Properties:
             Name: instance-watcher-schedule
-            Schedule: cron(0 0 * * ? *)
+            Schedule: !Sub cron(${CronSchedule})
       Tags:
-        Project: !Ref PROJECT
+        Project: !Ref Project
+        CloudFormation: "True"
+        Information: "github.com/z0ph/instance-watcher"
 
   boto3layer:
     Type: 'AWS::Serverless::LayerVersion'
@@ -74,8 +113,8 @@ Resources:
       Description: boto3 layer
       ContentUri: ./layer
       CompatibleRuntimes:
-        - python2.7
         - python3.6
         - python3.7
       LicenseInfo: 'Available under the MIT-0 license.'
       RetentionPolicy: Retain
+

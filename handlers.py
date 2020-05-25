@@ -1,177 +1,119 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import boto3
 import os
+import logging
+from datetime import datetime, timedelta
+from slack_webhook import Slack
+import pymsteams
 
-aws_region = os.environ['AWSREGION']
+# Import Python files
+
+## AWS Services
+exec(open("./services/ec2.py").read())
+exec(open("./services/rds.py").read())
+exec(open("./services/glue.py").read())
+exec(open("./services/sagemaker.py").read())
+exec(open("./services/redshift.py").read())
+
+## Utils
+exec(open("./utils/slack.py").read())
+exec(open("./utils/teams.py").read())
+exec(open("./utils/mailer.py").read())
+exec(open("./utils/spend.py").read())
+
+root = logging.getLogger()
+if root.handlers:
+    for handler in root.handlers:
+        root.removeHandler(handler)
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',level=logging.INFO)
+
+# Catch Parameters (using environment variables)
+aws_region = os.environ['AWSRegion']
+whitelist_tag = os.environ['WhitelistTag']
+
+
+# Notifications
+enable_mail = int(os.environ['EnableMail'])
+## Slack
+enable_slack = int(os.environ['EnableSlack'])
+slack_webhook = os.environ['SlackWebHook']
+## Teams
+enable_teams = int(os.environ['EnableTeams'])
+teams_webhook = os.environ['TeamsWebHook']
+
+
 session = boto3.Session(region_name=aws_region)
-ec2 = session.client('ec2')
+ec2r = session.client('ec2')
 ses = session.client('ses')
 sts = session.client('sts')
 
 # Email Settings
-recipients = os.environ['RECIPIENTS'].split()
+recipients = os.environ['Recipients'].split()
 subject = '[AWS] Instance Watcher 👀 - '
-sender = "Instance Watcher <" + os.environ['SENDER'] + ">"
+sender = "Instance Watcher <" + os.environ['Sender'] + ">"
 charset = "UTF-8"
 
+
 def main(event, context):
-    # Activate mail notifications
-    mail_enabled = 1
-    running_ec2 = []
-    running_rds = []
-    hidden_count = 0
-    #hidden_rds_count = 0
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
-    ec2_regions = [region['RegionName'] for region in ec2.describe_regions()['Regions']]
+    spend = spending()
+    ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
+    #ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
+
+    running_ec2 = []
+    running_rds = []
+    running_glue = []
+    running_sage = []
+    running_redshift = []
+
     # For all AWS Regions
     for region in ec2_regions:
-        print("Checking running instances in: " + region)
-        
-        # RDS Checking
-        rdscon = boto3.client('rds', region_name=region)
-        rds = rdscon.describe_db_instances()
-        for r in rds['DBInstances']:
-            db_instance_name = r['DBInstanceIdentifier']
-            db_engine =  r['Engine']
-            db_type = r['DBInstanceClass']
-            db_storage = r['AllocatedStorage']
-            db_creation_time = r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
-            db_publicly_accessible = r['PubliclyAccessible']
+        logging.info("Start: Checking running instances in: %s", region)
+        logging.debug("Checking EC2")
+        running_ec2 = ec2(region, running_ec2, whitelist_tag)
+        logging.debug("Checking RDS")
+        running_rds = rds(region, running_rds, whitelist_tag)
+        logging.debug("Checking Glue")
+        running_glue = glue(region, running_glue, whitelist_tag, account)
+        logging.debug("Checking SageMaker")
+        running_sage = sagemaker(region, running_sage, whitelist_tag)
+        logging.debug("Checking Redshift")
+        running_redshift = redshift(region, running_redshift, whitelist_tag)
+        logging.info("End: Done for: %s", region)
+    mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
 
-            running_rds.append({
-                "db_instance_name": r['DBInstanceIdentifier'],
-                "db_engine": r['Engine'],
-                "db_type": r['DBInstanceClass'],
-                "db_storage": r['AllocatedStorage'],
-                "db_publicly_accessible": r['PubliclyAccessible'],
-                "region": region,
-                "launch_time": r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
-            })
-            print(db_instance_name,db_engine,db_type,db_storage,db_creation_time,db_publicly_accessible)
-        
-        # EC2 Checking
-        ec2con = boto3.resource('ec2', region_name=region)
-        instances = ec2con.instances.filter()
-        # For every instances in region
-        for instance in instances:
-            if instance.state["Name"] == "running":
-                # For all instances tags
-                hidden = 0
-                instancename = "n/a"
-                for tags in instance.tags or []:
-                    if tags["Key"] == 'Name':
-                        instancename = tags["Value"]
-                    if tags["Key"] == 'iw' and tags["Value"] == 'off':
-                        hidden = 1
-                        hidden_count = +1
-                        break
-                if hidden != 1:
-                    print(instancename, instance.id)
-                    # fill the list
-                    running_ec2.append({
-                        "instance_name": instancename,
-                        "id": instance.id,
-                        "instance_type": instance.instance_type,
-                        "key_pair": instance.key_name,
-                        "region": region,
-                        "launch_time": instance.launch_time.strftime("%Y-%m-%d %H:%M:%S")
-                    })
-            else:
-                print("- No running instance, but some exist (Pending, Stopped or Terminated)")
-    print("Total number of running EC2 instance(s):", len(running_ec2))
-    print("Total number of hidden EC2 instance(s):", hidden_count)
-    print("Total number of running RDS instance(s):", len(running_rds))
-    #print("Total number of hidden RDS instance(s):", len(hidden_rds_count)) # not yet implemented
 
-    if (len(running_ec2) == 0 and len(running_rds) == 0):
-        print("Nothing to do here, no running EC2 or RDS instances")
+    # Exec Summary (logging)
+    logging.info("===== Summary =====")
+    logging.info("Current Spend (USD): %s", spend)
+    logging.info("Total number of running EC2 instance(s): %s", len(running_ec2))
+    #logging.info("Total number of hidden EC2 instance(s): %s", ec2_hidden_count)
+    logging.info("Total number of running RDS instance(s): %s", len(running_rds))
+    #logging.info("Total number of hidden RDS instance(s): %s", rds_hidden_count)
+    logging.info("Total number of running Glue Dev Endpoint(s): %s", len(running_glue))
+    #logging.info("Total number of hidden Glue Dev Endpoint(s): %s", glue_hidden_count)
+    logging.info("Total number of running SageMaker Notebook instance(s): %s", len(running_sage))
+    #logging.info("Total number of hidden SageMaker Notebook instance(s): %s", sage_hidden_count)
+    logging.info("Total number of running Redshift Cluster(s): %s", len(running_redshift))
+    #logging.info("Total number of hidden Redshift Cluster(s): %s", rs_hidden_count)
+
+    # Slack & Teams Integrations
+    if enable_slack == 1:
+        logging.info("Posting Slack message")
+        speak_slack(slack_webhook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
     else:
-        if mail_enabled == 1:
-            print("Sending email to: " + str(recipients))
-            body_text = (
-                        """
-                        Instance Watcher\r\n
-                        Running EC2 Instances {ec2}
-                        Running RDS Instances {rds}
-                        """).format(
-                                ec2=len(running_ec2),
-                                rds=len(running_rds),
-                            )
-            header = """
-            <html>
-                <head>
-                    <style>
-                        table, th, td {
-                        border: 3px solid black;
-                        border-collapse: collapse;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <h1>Instance Watcher 👀</h1>
-                    <p>AWS AccountID: <a href="https://""" + account + """.signin.aws.amazon.com/console">""" + account + """</a> - <a href=https://""" + alias + """.signin.aws.amazon.com/console>""" + alias + """</a></p>"""
-            
-            # Crafting EC2 html table
-            if len(running_ec2) > 0:
-                ec2_table = """
-                    <h3>Running EC2 Instances: </h3>
-                    <table cellpadding="4" cellspacing="4">
-                    <tr><td><strong>Name</strong></td><td><strong>Instance ID</strong></td><td><strong>Intsance Type</strong></td><td><strong>Key Name</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
-                    """ + \
-                        "\n".join([f"<tr><td>{r['instance_name']}</td><td>{r['id']}</td><td>{r['instance_type']}</td><td>{r['key_pair']}</td><td>{r['region']}</td><td>{r['launch_time']}</td></tr>" for r in running_ec2]) \
-                        + """
-                    </table>
-                    <p>Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """
-                    <br />Total number of hidden EC2 instance(s): """ + str(hidden_count) + """</p>"""
-            else:
-                ec2_table = """"""
-            
-            # Crafting RDS html table
-            if len(running_rds) > 0:
-                rds_table = """
-                    <h3>Running RDS Instances: </h3>
-                    <table cellpadding="4" cellspacing="4">
-                    <tr><td><strong>Name</strong></td><td><strong>Engine</strong></td><td><strong>DB Type</strong></td><td><strong>Volume (GB)</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
-                    """ + \
-                        "\n".join([f"<tr><td>{r['db_instance_name']}</td><td>{r['db_engine']}</td><td>{r['db_type']}</td><td>{r['db_storage']}</td><td>{r['region']}</td><td>{r['launch_time']}</td></tr>" for r in running_rds]) \
-                        + """
-                    </table>
-                    <p>Total number of running RDS instance(s): """ + str(len(running_rds)) + """"""
-            else:
-                rds_table = """"""
-            
-            footer = """
-                    <p><a href="https://github.com/z0ph/instance-watcher">Instance Watcher 🖤</a></p>
-                </body>
-            </html>
-            """
-            # Concatenate html email
-            body_html = header + ec2_table + rds_table + footer
+        logging.info("Slack is disabled")
 
-            response = ses.send_email(
-                Destination={
-                    'ToAddresses': recipients,
-                },
-                Message={
-                    'Body': {
-                        'Html': {
-                            'Charset': charset,
-                            'Data': body_html,
-                        },
-                        'Text': {
-                            'Charset': charset,
-                            'Data': body_text,
-                        },
-                    },
-                    'Subject': {
-                        'Charset': charset,
-                        'Data': subject + account,
-                    },
-                },
-                Source=sender,
-            )
-            print("Email sent! Message ID:"),
-            print(response['MessageId'])
+    if enable_teams == 1:
+        logging.info("Posting MS Teams message")
+        speak_teams(teams_webhook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+    else:
+        logging.info("Teams is disabled")
+
 
 if __name__ == '__main__':
     main(0,0)
+
