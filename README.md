@@ -78,10 +78,6 @@ CronSchedule := 0 18 * * ? *
 
 *Nb: Use emails in the command line is optional if you've already set up in the `Makefile`*
 
-## Destroy
-
-        $ make tear-down
-
 ## Whitelisting
 
 If you want to whitelist a specific instance to be hidden from the daily report, you will need to add the following tag to the instance.
@@ -91,3 +87,7 @@ If you want to whitelist a specific instance to be hidden from the daily report,
 | `watcher` | `off` |
 
 *nb: Tag `Key` is customizable in `Makefile`*
+
+## Destroy
+
+        $ make tear-down
