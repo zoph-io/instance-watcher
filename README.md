@@ -2,7 +2,7 @@
 
 ## Introduction
 
-AWS Instance Watcher will send you once a day a recap notification with the list of the running instances on all AWS regions for a given AWS Account.
+Instance Watcher will send you once a day a recap notification with the list of the running instances on all AWS regions for a given AWS Account.
 
 Useful for `non-prod`, `lab/training`, `sandbox`, or `personal` AWS accounts, to get a kindly reminder of what you've left running. :money_with_wings:
 
@@ -21,13 +21,14 @@ Notifications could be:
 
 ## Features
 
-- Cron Schedule
-- Whitelisting
+- Customizable Cron Schedule
+- Whitelisting capabilities
 - Month to Date (MTD) Spending
 - Slack Notifications *(Optional)*
 - Microsoft Teams Notifications *(Optional)*
 - Emails Notifications *(Optional)*
 - Serverless Architecture
+- Automated deployment using (IaC)
 
 ## Sneak Peek
 
@@ -49,7 +50,7 @@ Notifications could be:
 
 ## Deployment
 
-Change default settings in `Makefile` or use directly the command-line.
+Change default settings in `Makefile` or use directly the command-line with parameters.
 
 > Nb: Recipients are **space-delimited**
 
@@ -61,12 +62,14 @@ Recipients := my_target_email@domain.com my_second_target@domain.com
 Sender := my_source_email@domain.com
 EnableMail := 1
 EnableSlack := 0
-SlackWebHook := ""
+SlackWebHook := "your_webhook_here"
 EnableTeams := 0
-TeamsWebHook := ""
-WhistelistTag := watcher
+TeamsWebHook := "your_webhook_here"
+WhitelistTag := watcher
 CronSchedule := 0 18 * * ? *
 ```
+
+### Deployment steps
 
         $ make layer
         $ make package Project=<your_project_name>
@@ -88,10 +91,3 @@ If you want to whitelist a specific instance to be hidden from the daily report,
 | `watcher` | `off` |
 
 *nb: Tag `Key` is customizable in `Makefile`*
-
-## Todo
-
-* ~~Add `SageMaker Notebook instances`~~
-  * Whitelist
-* ~~Add `Glue Dev Endpoints`~~
-  * Whitelist
