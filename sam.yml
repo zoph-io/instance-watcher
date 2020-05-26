@@ -90,6 +90,7 @@ Resources:
               - iam:GetRole
               - iam:ListAccountAliases
               - rds:DescribeDBInstances
+              - rds:ListTagsForResource
               - redshift:DescribeClusters
               - sagemaker:ListNotebookInstances
               - sagemaker:ListTags
