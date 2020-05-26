@@ -7,9 +7,21 @@ import logging
 from datetime import datetime, timedelta
 from slack_webhook import Slack
 import pymsteams
-import utils
-import services
 
+# Import Python files
+
+## AWS Services
+exec(open("./services/ec2.py").read())
+exec(open("./services/rds.py").read())
+exec(open("./services/glue.py").read())
+exec(open("./services/sagemaker.py").read())
+exec(open("./services/redshift.py").read())
+
+## Utils
+exec(open("./utils/slack.py").read())
+exec(open("./utils/teams.py").read())
+exec(open("./utils/mailer.py").read())
+exec(open("./utils/spend.py").read())
 
 root = logging.getLogger()
 if root.handlers:
@@ -47,7 +59,7 @@ charset = "UTF-8"
 def main(event, context):
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
-    spend = utils.spending()
+    spend = spending()
     ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
     #ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
 
@@ -61,17 +73,17 @@ def main(event, context):
     for region in ec2_regions:
         logging.info("Start: Checking running instances in: %s", region)
         logging.debug("Checking EC2")
-        running_ec2 = services.ec2(region, running_ec2, whitelist_tag)
+        running_ec2 = ec2(region, running_ec2, whitelist_tag)
         logging.debug("Checking RDS")
-        running_rds = services.rds(region, running_rds, whitelist_tag)
+        running_rds = rds(region, running_rds, whitelist_tag)
         logging.debug("Checking Glue")
-        running_glue = services.glue(region, running_glue, whitelist_tag, account)
+        running_glue = glue(region, running_glue, whitelist_tag, account)
         logging.debug("Checking SageMaker")
-        running_sage = services.sagemaker(region, running_sage, whitelist_tag)
+        running_sage = sagemaker(region, running_sage, whitelist_tag)
         logging.debug("Checking Redshift")
-        running_redshift = services.redshift(region, running_redshift, whitelist_tag)
+        running_redshift = redshift(region, running_redshift, whitelist_tag)
         logging.info("End: Done for: %s", region)
-    utils.mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+    mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
 
 
     # Exec Summary (logging)
@@ -91,13 +103,13 @@ def main(event, context):
     # Slack & Teams Integrations
     if enable_slack == 1:
         logging.info("Posting Slack message")
-        utils.speak_slack(slack_webhook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+        speak_slack(slack_webhook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
     else:
         logging.info("Slack is disabled")
 
     if enable_teams == 1:
         logging.info("Posting MS Teams message")
-        utils.speak_teams(teams_webhook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+        speak_teams(teams_webhook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
     else:
         logging.info("Teams is disabled")
 
