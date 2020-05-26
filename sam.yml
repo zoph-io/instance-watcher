@@ -87,6 +87,7 @@ Resources:
               - ec2:DescribeInstanceStatus
               - ec2:DescribeRegions
               - glue:GetDevEndpoints
+              - glue:GetTags
               - iam:GetRole
               - iam:ListAccountAliases
               - rds:DescribeDBInstances
