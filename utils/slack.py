@@ -24,4 +24,4 @@ def speak_slack(SlackWebHook, alias, account, spend, running_ec2, running_rds, r
         if len(running_redshift) > 0:
             slack.post(text="""""".join([f"\n • Redshift: `{r['rs_clusteridentifier']}`  `{r['rs_status']}`  `{r['rs_numberofnodes']}`  `{r['region']}`  `{r['rs_creation_time']}`" for r in running_redshift]) + """""")
     except Exception as e:
-        logging.error("Failed posting to Slack: ", e)
+        logging.error("Failed posting to Slack: %s", e)

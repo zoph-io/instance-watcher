@@ -25,4 +25,4 @@ def spending():
 
         return usd
     except Exception as e:
-        logging.error("Failed to get spending with error: ", e)
+        logging.error("Failed to get spending with error: %s", e)

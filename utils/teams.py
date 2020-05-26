@@ -33,4 +33,4 @@ def speak_teams(teams_webhook, alias, account, spend, running_ec2, running_rds, 
             teams.text("""""".join([f"\n * Redshift: {r['rs_clusteridentifier']}  {r['rs_status']}  {r['rs_numberofnodes']}  {r['region']}  {r['rs_creation_time']}" for r in running_redshift]) + """""")
             teams.send()
     except Exception as e:
-        logging.error("Failed posting MS Teams Message ", e)
+        logging.error("Failed posting MS Teams Message %s", e)
