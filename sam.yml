@@ -56,7 +56,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       FunctionName: !Sub ${Project}-${Env}
-      Description: Monitoring Running Instances + Email Alerting
+      Description: Instance Watcher - Monitor Instances mistakenly left running (Multi-Region)
       Handler: handlers.main
       Runtime: python3.7
       CodeUri: ./build
@@ -107,6 +107,44 @@ Resources:
         Project: !Ref Project
         CloudFormation: "True"
         Information: "github.com/z0ph/instance-watcher"
+
+  CloudWatchLogsMetricsFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties: 
+      FilterPattern: 'ERROR'
+      LogGroupName: !Sub "/aws/lambda/${Project}-${Env}"
+      MetricTransformations: 
+        -
+          MetricValue: "1"
+          MetricNamespace: !Sub "InstanceWatcher-${Env}"
+          MetricName: "ERROR"
+          DefaultValue: 0
+
+  ErrorAlarm:
+      Type: "AWS::CloudWatch::Alarm"
+      Properties:
+        ActionsEnabled: true
+        AlarmActions:
+          - !Ref AlertingTopic
+        AlarmDescription: >
+          Alarm for ERROR on Instance-Watcher Lambda function
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        EvaluationPeriods: 1
+        MetricName: ERROR
+        Namespace: !Sub "InstanceWatcher-${Env}"
+        OKActions:
+          - !Ref AlertingTopic
+        Period: 10
+        Statistic: Sum
+        Threshold: 1
+
+  AlertingTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: "Alarm Topic for Instance-Watcher"
+      Subscription:
+        - Protocol: email
+          Endpoint: !Select [0, !Split [" ", !Ref Recipients]]
 
   boto3layer:
     Type: 'AWS::Serverless::LayerVersion'
