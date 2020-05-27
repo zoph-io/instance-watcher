@@ -48,7 +48,7 @@ def rds(region, running_rds, whitelist_tag):
                         "region": region,
                         "launch_time": r['InstanceCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
                     })
-                    logging.info("Matched!: %s %s %s %s %s %s %s", db_instance_name, db_status, db_engine, db_type, db_storage, db_creation_time, db_publicly_accessible)
+                    logging.info("RDS Match!: %s %s %s %s %s %s %s", db_instance_name, db_status, db_engine, db_type, db_storage, db_creation_time, db_publicly_accessible)
         else:
             logging.info("An RDS instance is creating")
     return running_rds

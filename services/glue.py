@@ -32,5 +32,5 @@ def glue(region, running_glue, whitelist_tag, account):
                     "region": region,
                     "glue_createdtimestamp": r['CreatedTimestamp'].strftime("%Y-%m-%d %H:%M:%S")
                 })
-                logging.info("Matched!: %s %s %s %s", glue_endpointname, glue_status, glue_numberofnodes, glue_createdtimestamp)
+                logging.info("Glue Match!: %s %s %s %s", glue_endpointname, glue_status, glue_numberofnodes, glue_createdtimestamp)
     return running_glue

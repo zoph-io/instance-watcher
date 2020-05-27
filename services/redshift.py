@@ -35,7 +35,7 @@ def redshift(region, running_redshift, whitelist_tag):
                         "region": region,
                         "rs_creation_time": r['ClusterCreateTime'].strftime("%Y-%m-%d %H:%M:%S")
                     })
-                    logging.info("Matched!: %s %s %s %s %s %s", rs_clusteridentifier, rs_status, rs_type, rs_numberofnodes, region, rs_creation_time)
+                    logging.info("Redshift Match!: %s %s %s %s %s %s", rs_clusteridentifier, rs_status, rs_type, rs_numberofnodes, region, rs_creation_time)
         else:
             logging.info("A Redshift Cluster is creating or in other non billed state")
     return running_redshift
