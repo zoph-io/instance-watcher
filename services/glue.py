@@ -18,12 +18,14 @@ def glue(region, running_glue, whitelist_tag, account):
         
         # Whitelist checking
         instance_tags = gluecon.get_tags(ResourceArn=glue_arn)
+        glue_hidden = 0
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/glue.html#Glue.Client.get_tags
         glue_tags = instance_tags['Tags']
         if whitelist_tag in glue_tags:
-            if whitelist_tag == 'off':
+            if glue_tags["watcher"] == 'off':
                 glue_hidden_count += 1
-        else:
+                glue_hidden = 1
+        if glue_hidden != 1:
             if glue_status == "READY":
                 running_glue.append({
                     "glue_endpointname": r['EndpointName'],
