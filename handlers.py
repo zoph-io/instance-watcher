@@ -61,8 +61,8 @@ def main(event, context):
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
     spend = spending()
-    #ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
-    ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
+    ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
+    #ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
 
     running_ec2 = []
     running_rds = []
@@ -84,7 +84,6 @@ def main(event, context):
         logging.debug("Checking Redshift")
         running_redshift = redshift(region, running_redshift, whitelist_tag)
         logging.info("End: Done for: %s", region)
-    mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
 
 
     # Exec Summary (logging)
@@ -101,6 +100,12 @@ def main(event, context):
     #logging.info("Total number of hidden SageMaker Notebook instance(s): %s", sage_hidden_count)
     logging.info("Total number of running Redshift Cluster(s): %s", len(running_redshift))
     #logging.info("Total number of hidden Redshift Cluster(s): %s", rs_hidden_count)
+
+    # Email Integration
+    if enable_mail == 1:
+        mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+    else:
+        logging.info("Email Notification Disabled")
 
     # Slack & Teams Integrations
     if enable_slack == 1:

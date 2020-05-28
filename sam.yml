@@ -138,6 +138,7 @@ Resources:
         Period: 10
         Statistic: Sum
         Threshold: 1
+        TreatMissingData: ignore
 
   AlertingTopic:
     Type: "AWS::SNS::Topic"
