@@ -5,6 +5,7 @@ import boto3
 import os
 import logging
 from datetime import datetime, timedelta
+import calendar
 from slack_webhook import Slack
 import pymsteams
 
@@ -83,12 +84,12 @@ def main(event, context):
         logging.debug("Checking Redshift")
         running_redshift = redshift(region, running_redshift, whitelist_tag)
         logging.info("End: Done for: %s", region)
-    mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
 
 
     # Exec Summary (logging)
     logging.info("===== Summary =====")
-    logging.info("Current Spend (USD): %s", spend)
+    logging.info("Current MTD Spend (USD): %s", spend[0])
+    logging.info("Forecast (Month) Spend (USD): %s", spend[1])
     logging.info("Total number of running EC2 instance(s): %s", len(running_ec2))
     #logging.info("Total number of hidden EC2 instance(s): %s", ec2_hidden_count)
     logging.info("Total number of running RDS instance(s): %s", len(running_rds))
@@ -99,6 +100,12 @@ def main(event, context):
     #logging.info("Total number of hidden SageMaker Notebook instance(s): %s", sage_hidden_count)
     logging.info("Total number of running Redshift Cluster(s): %s", len(running_redshift))
     #logging.info("Total number of hidden Redshift Cluster(s): %s", rs_hidden_count)
+
+    # Email Integration
+    if enable_mail == 1:
+        mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+    else:
+        logging.info("Email Notification Disabled")
 
     # Slack & Teams Integrations
     if enable_slack == 1:

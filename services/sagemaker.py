@@ -36,5 +36,5 @@ def sagemaker(region, running_sage, whitelist_tag):
                         "region": region,
                         "sage_creationtime": r['CreationTime'].strftime("%Y-%m-%d %H:%M:%S")
                     })
-                    logging.info("Matched!: %s %s %s %s", sage_notebookinstancename, sage_notebookinstancestatus, sage_instancetype, sage_creationtime)
+                    logging.info("SageMaker Match!: %s %s %s %s", sage_notebookinstancename, sage_notebookinstancestatus, sage_instancetype, sage_creationtime)
     return running_sage
