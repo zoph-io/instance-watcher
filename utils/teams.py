@@ -5,7 +5,8 @@ def speak_teams(teams_webhook, alias, account, spend, running_ec2, running_rds, 
         teams.text("""
 **AWS Account: """ + str(account) + """ - """ + str(alias) + """**
 
-* Current Spend MTD (USD): """ + str(spend) + """
+* Current Spend - Month to Date (USD): """ + str(spend[0]) + """
+* Forecasted Monthly Spend (USD): """ + str(spend[1]) + """
 * Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """
 * Total number of running RDS instance(s): """ + str(len(running_rds)) + """
 * Total number of running Glue Dev Endpoint(s): """ + str(len(running_glue)) + """

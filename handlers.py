@@ -5,6 +5,7 @@ import boto3
 import os
 import logging
 from datetime import datetime, timedelta
+import calendar
 from slack_webhook import Slack
 import pymsteams
 
@@ -60,8 +61,8 @@ def main(event, context):
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
     spend = spending()
-    ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
-    #ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
+    #ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
+    ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
 
     running_ec2 = []
     running_rds = []
@@ -88,7 +89,8 @@ def main(event, context):
 
     # Exec Summary (logging)
     logging.info("===== Summary =====")
-    logging.info("Current Spend (USD): %s", spend)
+    logging.info("Current MTD Spend (USD): %s", spend[0])
+    logging.info("Forecast (Month) Spend (USD): %s", spend[1])
     logging.info("Total number of running EC2 instance(s): %s", len(running_ec2))
     #logging.info("Total number of hidden EC2 instance(s): %s", ec2_hidden_count)
     logging.info("Total number of running RDS instance(s): %s", len(running_rds))

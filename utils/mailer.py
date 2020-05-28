@@ -34,7 +34,7 @@ def mailer(region, alias, account, spend, running_ec2, running_rds, running_glue
                 </head>
                 <body>
                     <h1>Instance Watcher 👀</h1>
-                    <p>AWS AccountID: <a href="https://""" + account + """.signin.aws.amazon.com/console">""" + account + """</a> - <a href=https://""" + alias + """.signin.aws.amazon.com/console>""" + alias + """</a> - Current Spend: <a href="https://console.aws.amazon.com/cost-management/home?#/dashboard">$""" + str(spend) + """</a></p>"""
+                    <p>AWS AccountID: <a href="https://""" + account + """.signin.aws.amazon.com/console">""" + account + """</a> - <a href=https://""" + alias + """.signin.aws.amazon.com/console>""" + alias + """</a> - Current Spend: <a href="https://console.aws.amazon.com/cost-management/home?#/dashboard">$""" + str(spend[0]) + """</a> - Forecast: $""" + str(spend[1]) + """</p>"""
             
             # Crafting EC2 html table
             if len(running_ec2) > 0:

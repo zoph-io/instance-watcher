@@ -83,6 +83,7 @@ Resources:
             - Effect: Allow
               Action:
               - ce:GetCostAndUsage
+              - ce:GetCostForecast
               - ec2:DescribeInstances
               - ec2:DescribeInstanceStatus
               - ec2:DescribeRegions
