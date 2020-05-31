@@ -15,6 +15,7 @@ Currently, It covers the following AWS Services:
 - Redshift Clusters
 
 Notifications could be:
+
 - Slack Message
 - Microsoft Teams Message
 - Email
@@ -24,11 +25,13 @@ Notifications could be:
 - Customizable Cron Schedule
 - Whitelisting capabilities
 - Month to Date (MTD) Spending
+- Forecasted Monthly Spend
 - Slack Notifications *(Optional)*
 - Microsoft Teams Notifications *(Optional)*
 - Emails Notifications *(Optional)*
 - Serverless Architecture
 - Automated deployment using (IaC)
+- Email Notification on Lambda Error
 
 ## Sneak Peek
 
