@@ -17,7 +17,7 @@ help:
 	@echo "	cleaning - clean build and layer folders"
 
 ####################### Project #######################
-Project ?= discover
+Project ?= project
 Description ?= Instance Watcher Stack
 #######################################################
 
@@ -33,8 +33,8 @@ SlackWebHook := ""
 EnableTeams := 0
 TeamsWebHook := ""
 # Recipients are space delimited (ie: john@doe.com david@doe.com)
-Recipients := victor.grenu@external.engie.com jeremy.monnier@external.engie.com
-Sender := victor.grenu@external.engie.com
+Recipients := 
+Sender := 
 
 # Activate Email Notification
 EnableMail := 1
