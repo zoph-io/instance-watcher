@@ -43,7 +43,3 @@ def spending():
         return [usd, f_usd]
     except Exception as e:
         logging.error("Failed to get spending with error: %s", e)
-
-
-
-        info = (super[:20] + '..') if len(super) > 30 else super
