@@ -29,6 +29,7 @@ jobs:
       - name: 
         run: |
           sudo apt-get install python3-setuptools
+          pip install wheel
           make package
 
       # - name: sam build
