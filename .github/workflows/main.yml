@@ -32,14 +32,14 @@ jobs:
           pip3 install --upgrade pip
           pip3 install wheel
 
+      - name: Package Lambda Layer
+        run: |
+          make layer
+
       - name: Package Lambda
         run: |
           make package \
             Project=zoph
-
-      - name: Package Lambda Layer
-        run: |
-          make layer
 
       - name: Deploy
         run: |
