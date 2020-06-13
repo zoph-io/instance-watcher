@@ -9,7 +9,7 @@ jobs:
   aws_sam:
     runs-on: ubuntu-latest
     steps:
-      - name: Assume Role
+      - name: IAM Assume Role
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
