@@ -1,0 +1,48 @@
+name: "GHA - Deploy Instance Watcher"
+
+on: 
+  push:
+    branches:
+    - v0.3.3
+
+jobs:
+  aws_sam:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assume Role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.REGION }}
+          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+          role-duration-seconds: 1200
+          role-session-name: GhA-Instance-Watcher
+
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Test credentials - whoami
+        run: |
+          aws sts get-caller-identity
+
+      - name: 
+        run: |
+          make package
+
+      # - name: sam build
+      #   uses: TractorZoom/sam-cli-action@master
+      #   with:
+      #     sam_command: build -b ./build
+
+      - name: sam deploy
+        uses: TractorZoom/sam-cli-action@master
+        with:
+          sam_command: |
+            deploy \
+              --template-file build/template.yaml \
+              --stack-name ${{ secrets.PROJECT }}-${{ secrets.ENV }} \
+              --s3-bucket ${{ secrets.PROJECT }}-artifacts \
+              --region ${{ secrets.REGION }} \
+              --no-fail-on-empty-changeset \
+              --parameter-overrides EnableSlack=1 SlackWebHook=${{ secrets.SLACK_HOOK }} Recipients= ${{ secrets.RECIPIENTS }} Sender=${{ secrets.SENDER }} Project=instance-watcher --capabilities CAPABILITY_IAM
