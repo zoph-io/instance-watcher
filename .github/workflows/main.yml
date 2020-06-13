@@ -19,32 +19,27 @@ jobs:
           role-duration-seconds: 1200
           role-session-name: GhA-Instance-Watcher
 
-      - name: Checkout
+      - name: Git Checkout
         uses: actions/checkout@master
 
-      - name: Test credentials - whoami
+      - name: Test IAM credentials - whoami?
         run: |
           aws sts get-caller-identity
 
-      - name: 
+      - name: Python Requirements
         run: |
           sudo apt-get install python3-setuptools python3-dev python3-wheel -y
           pip3 install wheel
+
+      - name: Package
+        run: |
           make package
 
-      # - name: sam build
-      #   uses: TractorZoom/sam-cli-action@master
-      #   with:
-      #     sam_command: build -b ./build
-
-      - name: sam deploy
-        uses: TractorZoom/sam-cli-action@master
-        with:
-          sam_command: |
-            deploy \
-              --template-file build/template.yaml \
-              --stack-name ${{ secrets.PROJECT }}-${{ secrets.ENV }} \
-              --s3-bucket ${{ secrets.PROJECT }}-artifacts \
-              --region ${{ secrets.REGION }} \
-              --no-fail-on-empty-changeset \
-              --parameter-overrides EnableSlack=1 SlackWebHook=${{ secrets.SLACK_HOOK }} Recipients= ${{ secrets.RECIPIENTS }} Sender=${{ secrets.SENDER }} Project=instance-watcher --capabilities CAPABILITY_IAM
+      - name: Deploy
+        run: |
+          make deploy \
+              EnableSlack=1 \
+              SlackWebHook=${{ secrets.SLACK_HOOK }} \
+              Recipients=${{ secrets.RECIPIENTS }} \
+              Sender=${{ secrets.SENDER }} \
+              Project=instance-watcher \
