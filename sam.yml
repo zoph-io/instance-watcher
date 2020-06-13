@@ -109,6 +109,12 @@ Resources:
         CloudFormation: "True"
         Information: "github.com/z0ph/instance-watcher"
 
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: !Sub "/aws/lambda/${Project}-${Env}"
+      RetentionInDays: 30
+
   CloudWatchLogsMetricsFilter:
     Type: AWS::Logs::MetricFilter
     Properties: 
