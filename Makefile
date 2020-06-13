@@ -68,6 +68,7 @@ package: clean
 	pip3 install \
 		--isolated \
 		--user \
+		--install-option="--prefix=" \
 		--disable-pip-version-check \
 		-Ur requirements.txt -t ./build/
 
