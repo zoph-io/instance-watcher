@@ -34,7 +34,8 @@ jobs:
 
       - name: Package
         run: |
-          make package
+          make package \
+            Project=zoph
 
       - name: Deploy
         run: |
@@ -43,4 +44,4 @@ jobs:
               SlackWebHook=${{ secrets.SLACK_HOOK }} \
               Recipients=${{ secrets.RECIPIENTS }} \
               Sender=${{ secrets.SENDER }} \
-              Project=instance-watcher \
+              Project=zoph
