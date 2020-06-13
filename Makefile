@@ -17,7 +17,7 @@ help:
 	@echo "	cleaning - clean build and layer folders"
 
 ####################### Project #######################
-Project ?= myproject
+Project ?= project
 Description ?= Instance Watcher Stack
 #######################################################
 

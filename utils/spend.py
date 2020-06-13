@@ -7,20 +7,20 @@ def spending():
         # Retreive current spend for this month
         client = boto3.client('ce', region_name='us-east-1')
         today = datetime.now()
-        yesterday = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
-        tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
+        tomorrow = (datetime.today() + timedelta(days=1))
         firstdayofmonth = datetime.today().replace(day=1).strftime('%Y-%m-%d')
         lastdayofmonth = today.replace(day = calendar.monthrange(today.year, today.month)[1]).strftime('%Y-%m-%d')
+        lastdayofnextmonth = tomorrow.replace(day = calendar.monthrange(tomorrow.year, tomorrow.month)[1]).strftime('%Y-%m-%d')
         mtd_cost = client.get_cost_and_usage(
-        TimePeriod={
-            'Start': firstdayofmonth,
-            'End': yesterday
-        },
-        Granularity='MONTHLY',
-        Metrics=[
-            'AmortizedCost',
-        ]
-        )
+            TimePeriod={
+                'Start': firstdayofmonth,
+                'End': today.strftime('%Y-%m-%d')
+            },
+            Granularity='MONTHLY',
+            Metrics=[
+                'AmortizedCost',
+            ]
+            )
 
         for r in mtd_cost['ResultsByTime']:
             usd = r['Total']['AmortizedCost']['Amount']
@@ -28,13 +28,13 @@ def spending():
         logging.info("MTD Spend: %s", usd)
         
         forecast_cost = client.get_cost_forecast(
-        TimePeriod={
-            'Start': tomorrow,
-            'End': lastdayofmonth
-        },
-        Metric='UNBLENDED_COST',
-        Granularity='MONTHLY',
-        PredictionIntervalLevel=99)
+            TimePeriod={
+                'Start': tomorrow.strftime('%Y-%m-%d'),
+                'End': lastdayofmonth if today.strftime('%Y-%m-%d') > lastdayofmonth else lastdayofnextmonth
+            },
+            Metric='UNBLENDED_COST',
+            Granularity='MONTHLY',
+            PredictionIntervalLevel=99)
 
         f_usd = forecast_cost['Total']['Amount']
         f_usd = round(float(f_usd), 2)
