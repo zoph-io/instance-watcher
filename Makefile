@@ -66,7 +66,7 @@ package: clean
 	cp -R ./utils/*.py ./build/utils/
 
 	pip3 install \
-		--user \
+		--isolated
 		--install-option="--prefix=" \
 		--disable-pip-version-check \
 		-Ur requirements.txt -t ./build/
