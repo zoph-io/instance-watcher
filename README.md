@@ -1,5 +1,7 @@
 # Instance Watcher :eyes:
 
+![GHA - Deploy Instance Watcher](https://github.com/z0ph/instance-watcher/workflows/GHA%20-%20Deploy%20Instance%20Watcher/badge.svg)
+
 ## Introduction
 
 Instance Watcher will send you once a day a recap notification with the list of the running instances on all AWS regions for a given AWS Account.

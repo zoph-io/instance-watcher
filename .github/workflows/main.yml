@@ -28,6 +28,7 @@ jobs:
 
       - name: 
         run: |
+          sudo apt-get install python3-setuptools
           make package
 
       # - name: sam build
