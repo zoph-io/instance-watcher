@@ -83,6 +83,7 @@ package: clean
 layer: clean-layer
 	pip3 install \
 		--isolated \
+		--install-option="--prefix=" \
 		--disable-pip-version-check \
 		-Ur requirements-layer.txt -t ./layer/
 
