@@ -126,6 +126,7 @@ Resources:
           MetricNamespace: !Sub "InstanceWatcher-${Env}"
           MetricName: "ERROR"
           DefaultValue: 0
+    DependsOn: LambdaLogGroup
 
   ErrorAlarm:
       Type: "AWS::CloudWatch::Alarm"
