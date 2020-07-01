@@ -6,25 +6,31 @@ def spending():
         logging.info("Getting MTD Spending")
         # Retreive current spend for this month
         client = boto3.client('ce', region_name='us-east-1')
-        today = (datetime.now()).strftime('%Y-%m-%d')
+        today = datetime.now()
+        todaystr = today.strftime('%Y-%m-%d')
         tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
         firstdayofmonth = datetime.today().replace(day=1).strftime('%Y-%m-%d')
         lastdayofmonth = today.replace(day = calendar.monthrange(today.year, today.month)[1]).strftime('%Y-%m-%d')
-        mtd_cost = client.get_cost_and_usage(
-            TimePeriod={
-                'Start': firstdayofmonth,
-                'End': today
-            },
-            Granularity='MONTHLY',
-            Metrics=[
-                'AmortizedCost',
-            ]
-            )
-
-        for r in mtd_cost['ResultsByTime']:
-            usd = r['Total']['AmortizedCost']['Amount']
-            usd = round(float(usd), 2)
-        logging.info("MTD Spend: %s", usd)
+        
+        if firstdayofmonth != todaystr:
+            mtd_cost = client.get_cost_and_usage(
+                TimePeriod={
+                    'Start': firstdayofmonth,
+                    'End': today
+                },
+                Granularity='MONTHLY',
+                Metrics=[
+                    'AmortizedCost',
+                ]
+                )
+    
+            for r in mtd_cost['ResultsByTime']:
+                usd = r['Total']['AmortizedCost']['Amount']
+                usd = round(float(usd), 2)
+            logging.info("MTD Spend: %s", usd)
+        else:
+            logging.info("Spend not available (1st day of month)")
+            usd = 0
         
         # Forecast
         # Disable forcast at the last day of month
