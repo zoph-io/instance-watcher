@@ -6,15 +6,14 @@ def spending():
         logging.info("Getting MTD Spending")
         # Retreive current spend for this month
         client = boto3.client('ce', region_name='us-east-1')
-        today = datetime.now()
-        tomorrow = (datetime.today() + timedelta(days=1))
+        today = (datetime.now()).strftime('%Y-%m-%d')
+        tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
         firstdayofmonth = datetime.today().replace(day=1).strftime('%Y-%m-%d')
         lastdayofmonth = today.replace(day = calendar.monthrange(today.year, today.month)[1]).strftime('%Y-%m-%d')
-        lastdayofnextmonth = tomorrow.replace(day = calendar.monthrange(tomorrow.year, tomorrow.month)[1]).strftime('%Y-%m-%d')
         mtd_cost = client.get_cost_and_usage(
             TimePeriod={
                 'Start': firstdayofmonth,
-                'End': today.strftime('%Y-%m-%d')
+                'End': today
             },
             Granularity='MONTHLY',
             Metrics=[
@@ -27,17 +26,23 @@ def spending():
             usd = round(float(usd), 2)
         logging.info("MTD Spend: %s", usd)
         
-        forecast_cost = client.get_cost_forecast(
-            TimePeriod={
-                'Start': tomorrow.strftime('%Y-%m-%d'),
-                'End': lastdayofmonth if today.strftime('%Y-%m-%d') > lastdayofmonth else lastdayofnextmonth
-            },
-            Metric='UNBLENDED_COST',
-            Granularity='MONTHLY',
-            PredictionIntervalLevel=99)
+        # Forecast
+        # Disable forcast at the last day of month
+        if tomorrow != lastdayofmonth:
+            forecast_cost = client.get_cost_forecast(
+                TimePeriod={
+                    'Start': tomorrow,
+                    'End': lastdayofmonth
+                },
+                Metric='UNBLENDED_COST',
+                Granularity='MONTHLY',
+                PredictionIntervalLevel=99)
+            f_usd = forecast_cost['Total']['Amount']
+            f_usd = round(float(f_usd), 2)
+        else:
+            logging.info("Forecast not available (end of month)")
+            f_usd = 0
 
-        f_usd = forecast_cost['Total']['Amount']
-        f_usd = round(float(f_usd), 2)
         logging.info("Forecasted Spend: %s", f_usd)
 
         return [usd, f_usd]
