@@ -16,7 +16,7 @@ def spending():
             mtd_cost = client.get_cost_and_usage(
                 TimePeriod={
                     'Start': firstdayofmonth,
-                    'End': today
+                    'End': todaystr
                 },
                 Granularity='MONTHLY',
                 Metrics=[
