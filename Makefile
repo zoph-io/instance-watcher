@@ -1,4 +1,5 @@
 .DEFAULT_GOAL := help
+.PHONY: help
 
 help:
 	@echo "Instance-Watcher-${Project}"
@@ -6,8 +7,8 @@ help:
 	@echo ""
 	@echo "Deploy using this order:"
 	@echo "	layer - prepare the layer"
-	@echo "	package - prepare the package"
 	@echo "	artifacts - create s3 bucket"
+	@echo "	package - prepare the package"
 	@echo "	verify-sender - verify SES Sender email"
 	@echo "	deploy - deploy the lambda function"
 	@echo "	---"
