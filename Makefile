@@ -54,7 +54,7 @@ artifacts:
 
 verify-sender:
 	@echo "Verifing sender email address"
-	@aws ses verify-email-identity --email-address $(SENDER)
+	@aws ses verify-email-identity --email-address $(Sender)
 	@echo "Done; Check your Inbox to validate the link!"
 
 package: clean
