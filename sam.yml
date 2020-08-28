@@ -62,8 +62,6 @@ Resources:
       CodeUri: ./build
       MemorySize: 256
       Timeout: 300
-      Layers:
-        - !Ref boto3layer
       Environment:
         Variables:
           Recipients: !Ref Recipients
@@ -154,16 +152,3 @@ Resources:
       Subscription:
         - Protocol: email
           Endpoint: !Select [0, !Split [" ", !Ref Recipients]]
-
-  boto3layer:
-    Type: 'AWS::Serverless::LayerVersion'
-    Properties:
-      LayerName: boto3-layer
-      Description: boto3 layer
-      ContentUri: ./layer
-      CompatibleRuntimes:
-        - python3.6
-        - python3.7
-      LicenseInfo: 'Available under the MIT-0 license.'
-      RetentionPolicy: Retain
-
