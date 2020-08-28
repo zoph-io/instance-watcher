@@ -68,7 +68,7 @@ package: clean
 
 	python3 -m pip install \
 		--isolated \
-		--prefix="" \
+		--prefix= \
 		--disable-pip-version-check \
 		-Ur requirements.txt -t ./build/
 
@@ -84,7 +84,7 @@ package: clean
 layer: clean-layer
 	python3 -m pip install \
 		--isolated \
-		--prefix="" \
+		--prefix= \
 		--disable-pip-version-check \
 		-Ur requirements-layer.txt -t ./layer/
 
