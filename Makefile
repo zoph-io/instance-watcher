@@ -66,9 +66,9 @@ package: clean
 	cp -R ./services/*.py ./build/services/
 	cp -R ./utils/*.py ./build/utils/
 
-	pip3 install \
+	python3 -m pip install \
 		--isolated \
-		--install-option="--prefix=" \
+		--prefix="" \
 		--disable-pip-version-check \
 		-Ur requirements.txt -t ./build/
 
