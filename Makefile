@@ -82,7 +82,7 @@ package: clean
 	aws s3 cp build/template-lambda.yml 's3://${S3Bucket}/template-lambda.yml'
 
 layer: clean-layer
-	python -m pip install \
+	python3 -m pip install \
 		--isolated \
 		--prefix="" \
 		--disable-pip-version-check \
