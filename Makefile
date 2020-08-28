@@ -68,7 +68,7 @@ package: clean
 
 	python3 -m pip install \
 		--isolated \
-		--prefix= \
+		--prefix="" \
 		--disable-pip-version-check \
 		-Ur requirements.txt -t ./build/
 
@@ -82,9 +82,9 @@ package: clean
 	aws s3 cp build/template-lambda.yml 's3://${S3Bucket}/template-lambda.yml'
 
 layer: clean-layer
-	python3 -m pip install \
+	pip3 install \
 		--isolated \
-		--prefix= \
+		--install-option="--prefix=" \
 		--disable-pip-version-check \
 		-Ur requirements-layer.txt -t ./layer/
 
