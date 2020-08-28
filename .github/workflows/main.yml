@@ -3,7 +3,7 @@ name: "GHA - Deploy Instance Watcher"
 on: 
   push:
     branches:
-    - fix-build
+    - master
 
 jobs:
   aws_sam:
