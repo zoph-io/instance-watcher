@@ -76,7 +76,6 @@ CronSchedule := 0 18 * * ? *
 
 ### Deployment steps
 
-        $ make layer
         $ make artifacts
         $ make package Project=<your_project_name>
         $ make verify-sender
