@@ -35,16 +35,22 @@ def spending():
         # Forecast
         # Disable forcast at the last day of month
         if tomorrow != lastdayofmonth:
-            forecast_cost = client.get_cost_forecast(
-                TimePeriod={
-                    'Start': tomorrow,
-                    'End': lastdayofmonth
-                },
-                Metric='UNBLENDED_COST',
-                Granularity='MONTHLY',
-                PredictionIntervalLevel=99)
-            f_usd = forecast_cost['Total']['Amount']
-            f_usd = round(float(f_usd), 2)
+            logging.info("Tomorrow: %s is different than lastdayofmonth: %s", tomorrow, lastdayofmonth)
+            if tomorrow < lastdayofmonth:
+                logging.info("Tomorrow: %s is inferior than lastdayofmonth: %s", tomorrow, lastdayofmonth)
+                forecast_cost = client.get_cost_forecast(
+                    TimePeriod={
+                        'Start': tomorrow,
+                        'End': lastdayofmonth
+                    },
+                    Metric='UNBLENDED_COST',
+                    Granularity='MONTHLY',
+                    PredictionIntervalLevel=99)
+                f_usd = forecast_cost['Total']['Amount']
+                f_usd = round(float(f_usd), 2)
+            else:
+                logging.info("Tomorrow: %s is > of lastdayofmonth: ", tomorrow, lastdayofmonth)
+                f_usd = 0
         else:
             logging.info("Forecast not available (end of month)")
             f_usd = 0

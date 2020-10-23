@@ -1,9 +1,9 @@
-name: "[Prod] GHA - Deploy Instance Watcher"
+name: "[Draft] GHA - Deploy Instance Watcher"
 
 on: 
   push:
     branches:
-    - master
+    - draft
 
 jobs:
   aws_sam:
@@ -17,7 +17,7 @@ jobs:
           aws-region: ${{ secrets.REGION }}
           role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
           role-duration-seconds: 1200
-          role-session-name: GhA-Instance-Watcher-Prod
+          role-session-name: GhA-Instance-Watcher-Draft
 
       - name: Git Checkout
         uses: actions/checkout@master
@@ -35,7 +35,7 @@ jobs:
         run: |
           make package \
             Project=zoph \
-            Env=prod
+            Env=dev
 
       - name: Deploy
         run: |
@@ -45,4 +45,4 @@ jobs:
               Recipients=${{ secrets.RECIPIENTS }} \
               Sender=${{ secrets.SENDER }} \
               Project=zoph \
-              Env=prod
+              Env=dev
