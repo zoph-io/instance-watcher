@@ -65,7 +65,7 @@ package: clean
 
 	python3 -m pip install \
 		--isolated \
-		--prefix= \
+		--prefix="" \
 		--disable-pip-version-check \
 		-Ur requirements.txt -t ./build/
 
