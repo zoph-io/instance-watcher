@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: Instance Watcher Stack
+Description: Instance Watcher Stack - https://zoph.io
 ###########################################################
 Parameters:
 ###########################################################
@@ -105,7 +105,14 @@ Resources:
       Tags:
         Project: !Ref Project
         CloudFormation: "True"
-        Information: "github.com/z0ph/instance-watcher"
+        Information: "github.com/zoph-io/instance-watcher"
+
+  InvokConfigIW:
+    Type: AWS::Lambda::EventInvokeConfig
+    Properties: 
+      FunctionName: !Ref InstanceWatcherFunction
+      Qualifier: $LATEST
+      MaximumRetryAttempts: 0
 
   LambdaLogGroup:
     Type: AWS::Logs::LogGroup
@@ -152,3 +159,4 @@ Resources:
       Subscription:
         - Protocol: email
           Endpoint: !Select [0, !Split [" ", !Ref Recipients]]
+          
