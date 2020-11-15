@@ -37,7 +37,7 @@ jobs:
             Project=zoph \
             Env=dev
 
-      - name: Deploy
+      - name: Deploy Lambda
         run: |
           make deploy \
               EnableSlack=1 \
