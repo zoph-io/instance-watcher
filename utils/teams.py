@@ -2,7 +2,17 @@
 def speak_teams(teams_webhook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift):
     try:
         teams = pymsteams.connectorcard(teams_webhook)
-        teams.text("""
+        if len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0:
+            teams.text("""
+**AWS Account: """ + str(account) + """ - """ + str(alias) + """**
+
+* Current Spend - Month to Date (USD): """ + str(spend[0]) + """
+* Forecasted Monthly Spend (USD): """ + str(spend[1]) + """
+
+​​​​​​​​​​​​​​&#x2705; No instance mistakenly left running""")
+            teams.send()
+        else:
+            teams.text("""
 **AWS Account: """ + str(account) + """ - """ + str(alias) + """**
 
 * Current Spend - Month to Date (USD): """ + str(spend[0]) + """
@@ -12,7 +22,7 @@ def speak_teams(teams_webhook, alias, account, spend, running_ec2, running_rds, 
 * Total number of running Glue Dev Endpoint(s): """ + str(len(running_glue)) + """
 * Total number of running SageMaker Notebook instance(s): """ + str(len(running_sage)) + """
 * Total number of running Redshift Cluster(s): """ + str(len(running_redshift)) + """""")
-        teams.send()
+            teams.send()
         if len(running_ec2) > 0:
             teams.title("EC2 Instances (" + str(account) + ")")
             teams.text("""""".join([f"\n * {r['ec2_name']}  {r['ec2_id']}  {r['ec2_type']}  {r['ec2_state']}  {r['region']}  {r['ec2_launch_time']}" for r in running_ec2]) + """""")

@@ -8,18 +8,15 @@ help:
 	@echo "Deploy using this order:"
 	@echo "	artifacts - create s3 bucket"
 	@echo "	package - prepare the package"
-	@echo "	verify-sender - verify SES Sender email"
+	@echo "	verify-sender - verify SES sender email (only work for single email)"
 	@echo "	deploy - deploy the lambda function"
 	@echo "	---"
 	@echo "	destroy - destroy the CloudFormation stack"
 	@echo "	clean - clean the build folder"
 
-####################### Project #######################
+###################### Parameters ######################
 Project ?= project
 Description ?= Instance Watcher Stack
-#######################################################
-
-###################### Parameters ######################
 S3Bucket ?= instance-watcher-${Project}-${Env}-artifacts
 AWSRegion ?= eu-west-1
 Env ?= dev
@@ -74,9 +71,6 @@ package: clean
 		--template-file sam.yml \
 		--s3-bucket ${S3Bucket} \
 		--output-template-file build/template-lambda.yml
-
-	@echo "Copying updated cloud template to S3 bucket"
-	aws s3 cp build/template-lambda.yml 's3://${S3Bucket}/template-lambda.yml'
 
 deploy:
 	aws cloudformation deploy \
