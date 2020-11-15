@@ -55,7 +55,7 @@ Notifications could be:
 
 ## Deployment
 
-Change default settings in `Makefile` or use directly the command-line with parameters.
+Change default parameters in `Makefile` or use directly the command-line with parameters.
 
 > Nb: Recipients are **space-delimited**
 
@@ -63,15 +63,15 @@ Change default settings in `Makefile` or use directly the command-line with para
 
 ```bash
 Project ?= my_project_name
-Recipients := my_target_email@domain.com my_second_target@domain.com
-Sender := my_source_email@domain.com
-EnableMail := 1
-EnableSlack := 0
+Recipients := my_target_email@domain.com my_second_target@domain.com # Recipients, space delimited
+Sender := my_source_email@domain.com # Sender Email Address
+EnableMail := 1 # Enable this for Email Notifications
+EnableSlack := 0 # Enable this for Slack Notifications
 SlackWebHook := "your_webhook_here"
-EnableTeams := 0
+EnableTeams := 0 # Enable this for Microsoft Teams Notifications
 TeamsWebHook := "your_webhook_here"
-WhitelistTag := watcher
-CronSchedule := 0 18 * * ? *
+WhitelistTag := watcher # Key for the whitelist tag
+CronSchedule := 0 18 * * ? * # Scheduling of the Watcher
 ```
 
 ### Deployment steps
