@@ -61,8 +61,10 @@ def main(event, context):
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
     spend = spending()
-    ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
-    #ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
+    if os.environ['Environment'] == "dev":
+        ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
+    else:
+        ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]
 
     running_ec2 = []
     running_rds = []
@@ -91,15 +93,10 @@ def main(event, context):
     logging.info("Current MTD Spend (USD): %s", spend[0])
     logging.info("Forecast (Month) Spend (USD): %s", spend[1])
     logging.info("Total number of running EC2 instance(s): %s", len(running_ec2))
-    #logging.info("Total number of hidden EC2 instance(s): %s", ec2_hidden_count)
     logging.info("Total number of running RDS instance(s): %s", len(running_rds))
-    #logging.info("Total number of hidden RDS instance(s): %s", rds_hidden_count)
     logging.info("Total number of running Glue Dev Endpoint(s): %s", len(running_glue))
-    #logging.info("Total number of hidden Glue Dev Endpoint(s): %s", glue_hidden_count)
     logging.info("Total number of running SageMaker Notebook instance(s): %s", len(running_sage))
-    #logging.info("Total number of hidden SageMaker Notebook instance(s): %s", sage_hidden_count)
     logging.info("Total number of running Redshift Cluster(s): %s", len(running_redshift))
-    #logging.info("Total number of hidden Redshift Cluster(s): %s", rs_hidden_count)
 
     # Email Integration
     if enable_mail == 1:
