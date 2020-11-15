@@ -100,7 +100,7 @@ Resources:
         Timer:
           Type: Schedule
           Properties:
-            Name: instance-watcher-schedule
+            Name: !Sub instance-watcher-schedule-${Env}
             Schedule: !Sub cron(${CronSchedule})
       Tags:
         Project: !Ref Project
@@ -155,7 +155,7 @@ Resources:
   AlertingTopic:
     Type: "AWS::SNS::Topic"
     Properties:
-      DisplayName: "Alarm Topic for Instance-Watcher"
+      DisplayName: !Sub "Alarm Topic for Instance-Watcher - ${Env}"
       Subscription:
         - Protocol: email
           Endpoint: !Select [0, !Split [" ", !Ref Recipients]]
