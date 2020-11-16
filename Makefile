@@ -90,7 +90,7 @@ deploy:
 			TeamsWebHook=${TeamsWebHook} \
 			SlackWebHook=${SlackWebHook} \
 			EnableTeams=${EnableTeams} \
-			CronSchedule="${CronSchedule}" \
+			CronSchedule=${CronSchedule} \
 		--no-fail-on-empty-changeset
 
 tear-down:
