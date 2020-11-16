@@ -43,6 +43,8 @@ slack_webhook = os.environ['SlackWebHook']
 ## Teams
 enable_teams = int(os.environ['EnableTeams'])
 teams_webhook = os.environ['TeamsWebHook']
+# Other
+environment = os.environ['Environment']
 
 
 session = boto3.Session(region_name=aws_region)
@@ -61,7 +63,7 @@ def main(event, context):
     account = sts.get_caller_identity().get('Account')
     alias = boto3.client('iam').list_account_aliases()['AccountAliases'][0]
     spend = spending()
-    if os.environ['Environment'] == "dev":
+    if environment == "sandbox":
         ec2_regions = ["eu-west-1"] # Reduce to only one region, for faster troubleshooting
     else:
         ec2_regions = [region['RegionName'] for region in ec2r.describe_regions()['Regions']]

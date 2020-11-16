@@ -74,6 +74,7 @@ Resources:
           EnableTeams: !Ref EnableTeams
           TeamsWebHook: !Ref TeamsWebHook
           CronSchedule: !Ref CronSchedule
+          Environment: !Ref Env
       Policies:
         - AWSLambdaExecute # Managed Policy
         - Version: '2012-10-17' # Policy Document
