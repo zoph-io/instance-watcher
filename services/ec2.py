@@ -17,7 +17,10 @@ def ec2(region, running_ec2, whitelist_tag):
             ec2_launch_time = r['LaunchTime'].strftime("%Y-%m-%d %H:%M:%S")
 
             # Whitelist checking
-            ec2_tags = r['Tags']
+            if 'Tags' in r:
+                ec2_tags = r['Tags']
+            else:
+                ec2_tags = []
             ec2_hidden = 0
             instance_name = "no name"
             for tags in ec2_tags or []:
