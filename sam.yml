@@ -56,10 +56,6 @@ Parameters:
     Description: Microsoft Teams WebHook URL
 
 ###########################################################
-Conditions:
-###########################################################
-  EnableSchedule: !Equals [true, !Ref EnableSchedule]
-###########################################################
 Resources:
 ###########################################################
   InstanceWatcherFunction:
