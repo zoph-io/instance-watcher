@@ -14,7 +14,7 @@ Parameters:
     Description: AWS Region
   EnableSchedule:
     Type: String
-    Default: True
+    Default: true
     Description: Enable or Disable Schedule
   CronSchedule:
     Type: String
@@ -54,6 +54,10 @@ Parameters:
     Default: "not set"
     Description: Microsoft Teams WebHook URL
 
+###########################################################
+Conditions:
+###########################################################
+  CondEnableSchedule: !Equals [true, !Ref EnableSchedule]
 ###########################################################
 Resources:
 ###########################################################
@@ -108,7 +112,7 @@ Resources:
           Properties:
             Name: !Sub instance-watcher-schedule-${Env}
             Schedule: !Sub cron(${CronSchedule})
-            Enabled: False
+            Enabled: !If [CondEnableSchedule, true, false]
       Tags:
         Project: !Ref Project
         CloudFormation: "True"

@@ -45,5 +45,5 @@ jobs:
               Recipients=${{ secrets.RECIPIENTS }} \
               Sender=${{ secrets.SENDER }} \
               Project=zoph \
-              EnableSchedule=False \
+              EnableSchedule=false \
               Env=dev

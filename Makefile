@@ -35,7 +35,7 @@ Sender :=
 EnableMail := 1
 
 # Schedule Instance Watcher (UTC)
-EnableSchedule ?= True
+EnableSchedule ?= true
 CronSchedule := "0 18 * * ? *"
 #######################################################
 
