@@ -169,3 +169,6 @@ Resources:
         - Protocol: email
           Endpoint: !Select [0, !Split [" ", !Ref Recipients]]
           
+Outputs:
+  ScheduleEnableValue: 
+    Value: !Ref EnableSchedule
