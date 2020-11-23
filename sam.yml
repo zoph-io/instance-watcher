@@ -15,7 +15,6 @@ Parameters:
   EnableSchedule:
     Type: String
     Default: True
-    AllowedValues: [True, False]
     Description: Enable or Disable Schedule
   CronSchedule:
     Type: String
