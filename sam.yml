@@ -14,7 +14,7 @@ Parameters:
     Description: AWS Region
   EnableSchedule:
     Type: String
-    Default: 'true'
+    Default: true
   CronSchedule:
     Type: String
     Description: Cron Schedule
@@ -56,7 +56,7 @@ Parameters:
 ###########################################################
 Conditions:
 ###########################################################
-  CondEnableSchedule: !Equals ['true', !Ref EnableSchedule]
+  CondEnableSchedule: !Equals ['true', !Ref 'EnableSchedule']
 ###########################################################
 Resources:
 ###########################################################
