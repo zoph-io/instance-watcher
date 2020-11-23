@@ -163,7 +163,7 @@ Resources:
     Type: "AWS::SNS::Topic"
     Properties:
       DisplayName: !Sub "Alarm Topic for Instance-Watcher - ${Env}"
-      KmsMasterKeyId: 
+      KmsMasterKeyId: alias/aws/sns
       Subscription:
         - Protocol: email
           Endpoint: !Select [0, !Split [" ", !Ref Recipients]]
