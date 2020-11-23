@@ -12,6 +12,11 @@ Parameters:
     Type: String
     Default: eu-west-1
     Description: AWS Region
+  EnableSchedule:
+    Type: String
+    Default: true
+    AllowedValues: [true, false]
+    Description: Enable or Disable Schedule
   CronSchedule:
     Type: String
     Description: Cron Schedule
@@ -53,7 +58,7 @@ Parameters:
 ###########################################################
 Conditions:
 ###########################################################
-  IsProdEnvironment: !Equals [!Ref Env, prod]
+  EnableSchedule: !Equals [true, !Ref EnableSchedule]
 ###########################################################
 Resources:
 ###########################################################
@@ -108,7 +113,7 @@ Resources:
           Properties:
             Name: !Sub instance-watcher-schedule-${Env}
             Schedule: !Sub cron(${CronSchedule})
-            Enabled: False #!If [IsProdEnvironment, true, false]
+            Enabled: !Ref EnableSchedule
       Tags:
         Project: !Ref Project
         CloudFormation: "True"
