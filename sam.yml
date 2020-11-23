@@ -14,8 +14,8 @@ Parameters:
     Description: AWS Region
   EnableSchedule:
     Type: String
-    Default: true
-    AllowedValues: [true, false]
+    Default: True
+    AllowedValues: [True, False]
     Description: Enable or Disable Schedule
   CronSchedule:
     Type: String
