@@ -112,7 +112,7 @@ Resources:
           Properties:
             Name: !Sub instance-watcher-schedule-${Env}
             Schedule: !Sub cron(${CronSchedule})
-            Enabled: !If [CondEnableSchedule, true, false]
+            Enabled: false #!If [CondEnableSchedule, true, false]
       Tags:
         Project: !Ref Project
         CloudFormation: "True"
