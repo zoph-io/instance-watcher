@@ -12,6 +12,9 @@ Parameters:
     Type: String
     Default: eu-west-1
     Description: AWS Region
+  EnableSchedule:
+    Type: String
+    Default: true
   CronSchedule:
     Type: String
     Description: Cron Schedule
@@ -49,6 +52,11 @@ Parameters:
     Type: String
     Default: "not set"
     Description: Microsoft Teams WebHook URL
+
+###########################################################
+Conditions:
+###########################################################
+  CondEnableSchedule: !Equals ['true', !Ref 'EnableSchedule']
 ###########################################################
 Resources:
 ###########################################################
@@ -103,6 +111,7 @@ Resources:
           Properties:
             Name: !Sub instance-watcher-schedule-${Env}
             Schedule: !Sub cron(${CronSchedule})
+            Enabled: !If [CondEnableSchedule, true, false]
       Tags:
         Project: !Ref Project
         CloudFormation: "True"
@@ -157,7 +166,11 @@ Resources:
     Type: "AWS::SNS::Topic"
     Properties:
       DisplayName: !Sub "Alarm Topic for Instance-Watcher - ${Env}"
+      KmsMasterKeyId: alias/aws/sns
       Subscription:
         - Protocol: email
           Endpoint: !Select [0, !Split [" ", !Ref Recipients]]
           
+Outputs:
+  ScheduleEnableValue: 
+    Value: !Ref EnableSchedule
