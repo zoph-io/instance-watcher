@@ -84,7 +84,10 @@ def main(event, context):
         logging.debug("Checking Glue")
         running_glue = glue(region, running_glue, whitelist_tag, account)
         logging.debug("Checking SageMaker")
-        running_sage = sagemaker(region, running_sage, whitelist_tag)
+        if region == "ap-northeast-3":
+            pass
+        else:
+            running_sage = sagemaker(region, running_sage, whitelist_tag)
         logging.debug("Checking Redshift")
         running_redshift = redshift(region, running_redshift, whitelist_tag)
         logging.info("End: Done for: %s", region)
