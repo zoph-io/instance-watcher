@@ -54,10 +54,6 @@ Parameters:
     Description: Microsoft Teams WebHook URL
 
 ###########################################################
-Conditions:
-###########################################################
-  CondEnableSchedule: !Equals ['true', !Ref 'EnableSchedule']
-###########################################################
 Resources:
 ###########################################################
   InstanceWatcherFunction:
@@ -111,7 +107,6 @@ Resources:
           Properties:
             Name: !Sub instance-watcher-schedule-${Env}
             Schedule: !Sub cron(${CronSchedule})
-            Enabled: !If [CondEnableSchedule, true, false]
       Tags:
         Project: !Ref Project
         CloudFormation: "True"
