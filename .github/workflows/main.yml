@@ -5,6 +5,10 @@ on:
     branches:
     - master
 
+env:
+  env: 'prod'
+  project: 'zoph'
+
 jobs:
   aws_sam:
     runs-on: ubuntu-latest
@@ -34,8 +38,8 @@ jobs:
       - name: Package Lambda
         run: |
           make package \
-            Project=zoph \
-            Env=prod
+            Project=${{ env.project }} \
+            Env=${{ env.env }}
 
       - name: Deploy Lambda
         run: |
@@ -44,5 +48,5 @@ jobs:
               SlackWebHook=${{ secrets.SLACK_HOOK }} \
               Recipients=${{ secrets.RECIPIENTS }} \
               Sender=${{ secrets.SENDER }} \
-              Project=zoph \
-              Env=prod
+              Project=${{ env.project }} \
+              Env=${{ env.env }}
