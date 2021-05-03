@@ -30,6 +30,7 @@ TeamsWebHook := ""
 # Recipients are space delimited (ie: john@doe.com david@doe.com)
 Recipients := 
 Sender := 
+CustomTags := ClusterName,Creator
 
 # Activate Email Notification
 EnableMail := 1
@@ -91,6 +92,7 @@ deploy:
 			SlackWebHook=${SlackWebHook} \
 			EnableTeams=${EnableTeams} \
 			CronSchedule=${CronSchedule} \
+			CustomTags=${CustomTags} \
 		--no-fail-on-empty-changeset
 
 tear-down:

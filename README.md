@@ -31,6 +31,7 @@ Notifications could be:
 - Slack Notifications *(Optional)*
 - Microsoft Teams Notifications *(Optional)*
 - Emails Notifications *(Optional)*
+- CustomTags
 - Serverless Architecture
 - Automated deployment using (IaC)
 - Email Notification on Lambda Error
@@ -72,6 +73,7 @@ EnableTeams := 0 # Enable this for Microsoft Teams Notifications
 TeamsWebHook := "your_webhook_here"
 WhitelistTag := watcher # Key for the whitelist tag
 CronSchedule := 0 18 * * ? * # Scheduling of the Watcher
+CustomTags := foo,bar # Custom tags you want to be displayed in the reporting
 ```
 
 ### Deployment steps

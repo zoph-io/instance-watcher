@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-def mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift):
-    if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0):
+def mailer(region, alias, account, spend, running_ec2, custom_tags_dict, running_rds, running_glue, running_sage, running_redshift):
+    if (len(running_ec2[0]) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0):
         logging.info("Mail: Nothing to see here, no running instance - no mail will be sent")
     else:
         logging.info("Mail: Sending email to: %s", str(recipients))
@@ -15,7 +15,7 @@ def mailer(region, alias, account, spend, running_ec2, running_rds, running_glue
                     Running Glue Dev Endpoints {glue}
                     Running Redshift Clusters {rs}
                     """).format(
-                            ec2=len(running_ec2),
+                            ec2=len(running_ec2[0]),
                             rds=len(running_rds),
                             sage=len(running_sage),
                             glue=len(running_glue),
@@ -36,16 +36,16 @@ def mailer(region, alias, account, spend, running_ec2, running_rds, running_glue
                 <p>AWS AccountID: <a href="https://""" + account + """.signin.aws.amazon.com/console">""" + account + """</a> - <a href=https://""" + alias + """.signin.aws.amazon.com/console>""" + alias + """</a> - Current Spend: <a href="https://console.aws.amazon.com/cost-management/home?#/dashboard">$""" + str(spend[0]) + """</a> - Forecast: $""" + str(spend[1]) + """</p>"""
         
         # Crafting EC2 html table
-        if len(running_ec2) > 0:
+        if len(running_ec2[0]) > 0:
             ec2_table = """
                 <h3>Running EC2 Instance(s): </h3>
                 <table cellpadding="4" cellspacing="4">
-                <tr><td><strong>Name</strong></td><td><strong>Instance ID</strong></td><td><strong>Intsance Type</strong></td><td><strong>State</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td></tr>
+                <tr><td><strong>Name</strong></td><td><strong>Instance ID</strong></td><td><strong>Intsance Type</strong></td><td><strong>State</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td><td><strong>CustomTags</strong></td></tr>
                 """ + \
-                    "\n".join([f"<tr><td>{r['ec2_name']}</td><td>{r['ec2_id']}</td><td>{r['ec2_type']}</td><td>{r['ec2_state']}</td><td>{r['region']}</td><td>{r['ec2_launch_time']}</td></tr>" for r in running_ec2]) \
+                    "\n".join([f"<tr><td>{r['ec2_name']}</td><td>{r['ec2_id']}</td><td>{r['ec2_type']}</td><td>{r['ec2_state']}</td><td>{r['region']}</td><td>{r['ec2_launch_time']}</td><td>{custom_tags_dict}</td></tr>" for r in running_ec2[0]]) \
                     + """
                 </table>
-                <p>Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """"""
+                <p>Total number of running EC2 instance(s): """ + str(len(running_ec2[0])) + """"""
         else:
             ec2_table = """"""
         

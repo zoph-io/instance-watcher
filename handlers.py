@@ -79,6 +79,11 @@ def main(event, context):
         logging.info("Start: Checking running instances in: %s", region)
         logging.debug("Checking EC2")
         running_ec2 = ec2(region, running_ec2, whitelist_tag)
+        custom_tags_dict = running_ec2[1]
+
+        if custom_tags_dict == []:
+            custom_tags_dict = "No Custom tag"
+
         logging.debug("Checking RDS")
         running_rds = rds(region, running_rds, whitelist_tag)
         logging.debug("Checking Glue")
@@ -97,7 +102,7 @@ def main(event, context):
     logging.info("===== Summary =====")
     logging.info("Current MTD Spend (USD): %s", spend[0])
     logging.info("Forecast (Month) Spend (USD): %s", spend[1])
-    logging.info("Total number of running EC2 instance(s): %s", len(running_ec2))
+    logging.info("Total number of running EC2 instance(s): %s", len(running_ec2[0]))
     logging.info("Total number of running RDS instance(s): %s", len(running_rds))
     logging.info("Total number of running Glue Dev Endpoint(s): %s", len(running_glue))
     logging.info("Total number of running SageMaker Notebook instance(s): %s", len(running_sage))
@@ -105,22 +110,22 @@ def main(event, context):
 
     # Email Integration
     if enable_mail == 1:
-        mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+        mailer(region, alias, account, spend, running_ec2, custom_tags_dict, running_rds, running_glue, running_sage, running_redshift)
     else:
-        logging.info("Email Notification Disabled")
+        logging.info("Email notification feature is disabled")
 
     # Slack & Teams Integrations
     if enable_slack == 1:
         logging.info("Posting Slack message")
-        speak_slack(slack_webhook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+        speak_slack(slack_webhook, alias, account, spend, running_ec2, custom_tags_dict, running_rds, running_glue, running_sage, running_redshift)
     else:
-        logging.info("Slack is disabled")
+        logging.info("Slack feature is disabled")
 
     if enable_teams == 1:
         logging.info("Posting MS Teams message")
-        speak_teams(teams_webhook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift)
+        speak_teams(teams_webhook, alias, account, spend, running_ec2, custom_tags_dict, running_rds, running_glue, running_sage, running_redshift)
     else:
-        logging.info("Teams is disabled")
+        logging.info("Teams feature is disabled")
 
 
 if __name__ == '__main__':
