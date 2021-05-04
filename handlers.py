@@ -73,40 +73,39 @@ def main(event, context):
     running_glue = []
     running_sage = []
     running_redshift = []
+    custom_tags_dict = []
 
     # For all AWS Regions
     for region in ec2_regions:
-        logging.info("Start: Checking running instances in: %s", region)
-        logging.debug("Checking EC2")
-        running_ec2 = ec2(region, running_ec2, whitelist_tag)
+        logging.info("Start: Check running instances in: %s", region)
+        logging.debug("=> Checking EC2")
+        running_ec2 = ec2(region, running_ec2, custom_tags_dict, whitelist_tag)
         custom_tags_dict = running_ec2[1]
-
-        if custom_tags_dict == []:
-            custom_tags_dict = "No Custom tag"
-
-        logging.debug("Checking RDS")
+        running_ec2 = running_ec2[0]
+        logging.debug("=> Checking RDS")
         running_rds = rds(region, running_rds, whitelist_tag)
-        logging.debug("Checking Glue")
+        logging.debug("=> Checking Glue")
         running_glue = glue(region, running_glue, whitelist_tag, account)
-        logging.debug("Checking SageMaker")
+        logging.debug("=> Checking SageMaker")
         if region == "ap-northeast-3":
             pass
         else:
             running_sage = sagemaker(region, running_sage, whitelist_tag)
-        logging.debug("Checking Redshift")
+        logging.debug("=> Checking Redshift")
         running_redshift = redshift(region, running_redshift, whitelist_tag)
-        logging.info("End: Done for: %s", region)
+        logging.info("=> Done for: %s", region)
 
-
+    if custom_tags_dict == []:
+        custom_tags_dict = "No Custom tag"
     # Exec Summary (logging)
     logging.info("===== Summary =====")
-    logging.info("Current MTD Spend (USD): %s", spend[0])
-    logging.info("Forecast (Month) Spend (USD): %s", spend[1])
-    logging.info("Total number of running EC2 instance(s): %s", len(running_ec2[0]))
-    logging.info("Total number of running RDS instance(s): %s", len(running_rds))
-    logging.info("Total number of running Glue Dev Endpoint(s): %s", len(running_glue))
-    logging.info("Total number of running SageMaker Notebook instance(s): %s", len(running_sage))
-    logging.info("Total number of running Redshift Cluster(s): %s", len(running_redshift))
+    logging.info("MTD Spend: $%s", spend[0])
+    logging.info("Forecast Spend: $%s", spend[1])
+    logging.info("Running EC2 instance(s): %s", len(running_ec2))
+    logging.info("Running RDS instance(s): %s", len(running_rds))
+    logging.info("Running Glue Dev Endpoint(s): %s", len(running_glue))
+    logging.info("Running SageMaker Notebook instance(s): %s", len(running_sage))
+    logging.info("Running Redshift Cluster(s): %s", len(running_redshift))
 
     # Email Integration
     if enable_mail == 1:

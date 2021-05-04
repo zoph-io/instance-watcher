@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # EC2 Checking V2
-def ec2(region, running_ec2, whitelist_tag):
+def ec2(region, running_ec2, custom_tags_dict, whitelist_tag):
     ec2con = boto3.client('ec2', region_name=region)
     reservations = ec2con.describe_instances()['Reservations']
     ec2_hidden_count = 0
-    custom_tags_dict = []
+
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.Client.describe_instances
     # dict
     for reservation in reservations:
@@ -26,7 +26,7 @@ def ec2(region, running_ec2, whitelist_tag):
             instance_name = "no name"
 
             # CustomTags Management
-            CustomTags = os.environ['CustomTags'].split(",")
+            custom_tags = os.environ['CustomTags'].split(",")
             for tag in ec2_tags or []:
                 logging.debug("%s", tag)
                 if tag["Key"] == 'Name':
@@ -35,7 +35,7 @@ def ec2(region, running_ec2, whitelist_tag):
                     ec2_hidden = 1
                     ec2_hidden_count += 1
                     break
-                if tag["Key"] in CustomTags:
+                if tag["Key"] in custom_tags:
                     custom_tags_dict.append({
                         tag["Key"]: tag["Value"]
                     })

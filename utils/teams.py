@@ -2,7 +2,7 @@
 def speak_teams(teams_webhook, alias, account, spend, running_ec2, custom_tags_dict, running_rds, running_glue, running_sage, running_redshift):
     try:
         teams = pymsteams.connectorcard(teams_webhook)
-        if len(running_ec2[0]) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0:
+        if len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0:
             teams.text("""
 **AWS Account: """ + str(account) + """ - """ + str(alias) + """**
 
@@ -17,15 +17,15 @@ def speak_teams(teams_webhook, alias, account, spend, running_ec2, custom_tags_d
 
 * Current Spend - Month to Date (USD): """ + str(spend[0]) + """
 * Forecasted Monthly Spend (USD): """ + str(spend[1]) + """
-* Total number of running EC2 instance(s): """ + str(len(running_ec2[0])) + """
+* Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """
 * Total number of running RDS instance(s): """ + str(len(running_rds)) + """
 * Total number of running Glue Dev Endpoint(s): """ + str(len(running_glue)) + """
 * Total number of running SageMaker Notebook instance(s): """ + str(len(running_sage)) + """
 * Total number of running Redshift Cluster(s): """ + str(len(running_redshift)) + """""")
             teams.send()
-        if len(running_ec2[0]) > 0:
+        if len(running_ec2) > 0:
             teams.title("EC2 Instances (" + str(account) + ")")
-            teams.text("""""".join([f"\n * {r['ec2_name']}  {r['ec2_id']}  {r['ec2_type']}  {r['ec2_state']}  {r['region']}  {r['ec2_launch_time']} {custom_tags_dict}" for r in running_ec2[0]]) + """""")
+            teams.text("""""".join([f"\n * {r['ec2_name']}  {r['ec2_id']}  {r['ec2_type']}  {r['ec2_state']}  {r['region']}  {r['ec2_launch_time']} {custom_tags_dict}" for r in running_ec2]) + """""")
             teams.send()
         if len(running_rds) > 0:
             teams.title("RDS Instances (" + str(account) + ")")

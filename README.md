@@ -73,7 +73,7 @@ EnableTeams := 0 # Enable this for Microsoft Teams Notifications
 TeamsWebHook := "your_webhook_here"
 WhitelistTag := watcher # Key for the whitelist tag
 CronSchedule := 0 18 * * ? * # Scheduling of the Watcher
-CustomTags := foo,bar # Custom tags you want to be displayed in the reporting
+CustomTags := foo,bar # Custom tags you want to be displayed in the report
 ```
 
 ### Deployment steps
