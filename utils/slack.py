@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-def speak_slack(SlackWebHook, alias, account, spend, running_ec2, custom_tags_dict, running_rds, running_glue, running_sage, running_redshift):
+def speak_slack(SlackWebHook, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift):
     try:
         slack = Slack(url=SlackWebHook)
         if len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0:
@@ -21,7 +21,7 @@ def speak_slack(SlackWebHook, alias, account, spend, running_ec2, custom_tags_di
                 :arrow_right: SageMaker instance(s): """ + str(len(running_sage)) + """\n
                 :arrow_right: Redshift cluster(s): """ + str(len(running_redshift)) + """\n""")
         if len(running_ec2) > 0:
-            slack.post(text="""""".join([f"\n • EC2: `{r['ec2_id']}`  `{r['ec2_type']}`  `{r['ec2_state']}`  `{r['region']}`  `{r['ec2_launch_time']}`  `{r['ec2_name']}` `{custom_tags_dict}`" for r in running_ec2]) + """""")
+            slack.post(text="""""".join([f"\n • EC2: `{r['ec2_id']}`  `{r['ec2_type']}`  `{r['ec2_state']}`  `{r['region']}`  `{r['ec2_launch_time']}`  `{r['ec2_name']}` `{r['custom_tags']}`" for r in running_ec2]) + """""")
         if len(running_rds) > 0:
             slack.post(text="""""".join([f"\n • RDS: `{r['db_engine']}`  `{r['db_type']}`  `{r['db_storage']}`  `{r['region']}`  `{r['launch_time']}`  `{r['db_instance_name']}`" for r in running_rds]) + """""")
         if len(running_glue) > 0:

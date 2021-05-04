@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-def mailer(region, alias, account, spend, running_ec2, custom_tags_dict, running_rds, running_glue, running_sage, running_redshift):
+def mailer(region, alias, account, spend, running_ec2, running_rds, running_glue, running_sage, running_redshift):
     if (len(running_ec2) == 0 and len(running_rds) == 0 and len(running_glue) == 0 and len(running_sage) == 0 and len(running_redshift) == 0):
-        logging.info("Mail: Nothing to see here, no running instance - no mail will be sent")
+        logging.info("Mail: nothing to see here, no running instance - no mail will be sent")
     else:
-        logging.info("Mail: Sending email to: %s", str(recipients))
+        logging.info("Mail: sending email to: %s", str(recipients))
         body_text = (
                     """
                     Instance Watcher\r\n
@@ -42,7 +42,7 @@ def mailer(region, alias, account, spend, running_ec2, custom_tags_dict, running
                 <table cellpadding="4" cellspacing="4">
                 <tr><td><strong>Name</strong></td><td><strong>Instance ID</strong></td><td><strong>Intsance Type</strong></td><td><strong>State</strong></td><td><strong>Region</strong></td><td><strong>Launch Time</strong></td><td><strong>CustomTags</strong></td></tr>
                 """ + \
-                    "\n".join([f"<tr><td>{r['ec2_name']}</td><td>{r['ec2_id']}</td><td>{r['ec2_type']}</td><td>{r['ec2_state']}</td><td>{r['region']}</td><td>{r['ec2_launch_time']}</td><td>{str(custom_tags_dict)}</td></tr>" for r in running_ec2]) \
+                    "\n".join([f"<tr><td>{r['ec2_name']}</td><td>{r['ec2_id']}</td><td>{r['ec2_type']}</td><td>{r['ec2_state']}</td><td>{r['region']}</td><td>{r['ec2_launch_time']}</td><td>{r['custom_tags']}</td></tr>" for r in running_ec2]) \
                     + """
                 </table>
                 <p>Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """"""

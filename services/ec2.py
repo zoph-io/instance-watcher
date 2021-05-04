@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # EC2 Checking V2
-def ec2(region, running_ec2, custom_tags_dict, whitelist_tag):
+def ec2(region, running_ec2, whitelist_tag):
     ec2con = boto3.client('ec2', region_name=region)
     reservations = ec2con.describe_instances()['Reservations']
     ec2_hidden_count = 0
@@ -11,6 +11,7 @@ def ec2(region, running_ec2, custom_tags_dict, whitelist_tag):
     # dict
     for reservation in reservations:
         for r in reservation['Instances']:
+            custom_tags_dict = []
             logging.debug("%s", r)
             ec2_state = r['State']['Name']
             ec2_type = r['InstanceType']
@@ -36,9 +37,13 @@ def ec2(region, running_ec2, custom_tags_dict, whitelist_tag):
                     ec2_hidden_count += 1
                     break
                 if tag["Key"] in custom_tags:
-                    custom_tags_dict.append({
-                        tag["Key"]: tag["Value"]
+                    if ec2_state == "running":
+                        custom_tags_dict.append({
+                            tag["Key"]: tag["Value"]
                     })
+
+            if custom_tags_dict == []:
+                custom_tags_dict = "No Custom tag"
 
             if ec2_hidden != 1:
                 if ec2_state == "running":
@@ -48,8 +53,9 @@ def ec2(region, running_ec2, custom_tags_dict, whitelist_tag):
                         "ec2_type": r['InstanceType'],
                         "ec2_id": r['InstanceId'],
                         "region": region,
-                        "ec2_launch_time": r['LaunchTime'].strftime("%Y-%m-%d %H:%M:%S")
+                        "ec2_launch_time": r['LaunchTime'].strftime("%Y-%m-%d %H:%M:%S"),
+                        "custom_tags": custom_tags_dict
                     })
 
                     logging.info("EC2 Match!: %s %s %s %s %s %s / %s", instance_name, ec2_state, ec2_type, ec2_id, region, ec2_launch_time, custom_tags_dict)
-    return running_ec2, custom_tags_dict
+    return running_ec2
