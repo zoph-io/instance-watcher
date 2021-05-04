@@ -17,15 +17,15 @@ def speak_teams(teams_webhook, alias, account, spend, running_ec2, running_rds, 
 
 * Current Spend - Month to Date (USD): """ + str(spend[0]) + """
 * Forecasted Monthly Spend (USD): """ + str(spend[1]) + """
-* Total number of running EC2 instance(s): """ + str(len(running_ec2)) + """
-* Total number of running RDS instance(s): """ + str(len(running_rds)) + """
-* Total number of running Glue Dev Endpoint(s): """ + str(len(running_glue)) + """
-* Total number of running SageMaker Notebook instance(s): """ + str(len(running_sage)) + """
-* Total number of running Redshift Cluster(s): """ + str(len(running_redshift)) + """""")
+* Running EC2 instance(s): """ + str(len(running_ec2)) + """
+* Running RDS instance(s): """ + str(len(running_rds)) + """
+* Running Glue Dev Endpoint(s): """ + str(len(running_glue)) + """
+* Running SageMaker Notebook instance(s): """ + str(len(running_sage)) + """
+* Running Redshift Cluster(s): """ + str(len(running_redshift)) + """""")
             teams.send()
         if len(running_ec2) > 0:
             teams.title("EC2 Instances (" + str(account) + ")")
-            teams.text("""""".join([f"\n * {r['ec2_name']}  {r['ec2_id']}  {r['ec2_type']}  {r['ec2_state']}  {r['region']}  {r['ec2_launch_time']}" for r in running_ec2]) + """""")
+            teams.text("""""".join([f"\n * {r['ec2_name']}  {r['ec2_id']}  {r['ec2_type']}  {r['ec2_state']}  {r['region']}  {r['ec2_launch_time']} {r['custom_tags']}" for r in running_ec2]) + """""")
             teams.send()
         if len(running_rds) > 0:
             teams.title("RDS Instances (" + str(account) + ")")

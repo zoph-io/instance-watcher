@@ -1,9 +1,13 @@
-name: "[Draft] GHA - Deploy Instance Watcher"
+name: "[DRAFT] GHA - Deploy Instance Watcher"
 
 on: 
   push:
     branches:
     - draft
+
+env:
+  env: 'dev'
+  project: 'zoph'
 
 jobs:
   aws_sam:
@@ -34,8 +38,8 @@ jobs:
       - name: Package Lambda
         run: |
           make package \
-            Project=zoph \
-            Env=dev
+            Project=${{ env.project }} \
+            Env=${{ env.env }}
 
       - name: Deploy Lambda
         run: |
@@ -44,6 +48,12 @@ jobs:
               SlackWebHook=${{ secrets.SLACK_HOOK }} \
               Recipients=${{ secrets.RECIPIENTS }} \
               Sender=${{ secrets.SENDER }} \
-              Project=zoph \
-              EnableSchedule=false \
-              Env=dev
+              Project=${{ env.project }} \
+              Env=${{ env.env }}
+
+      - name: pull-request
+        uses: repo-sync/pull-request@v2
+        with:
+          pr_reviewer: "z0ph"
+          pr_assignee: "z0ph"
+          github_token: ${{ secrets.GITHUB_TOKEN }}

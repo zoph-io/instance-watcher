@@ -12,12 +12,12 @@ Parameters:
     Type: String
     Default: eu-west-1
     Description: AWS Region
-  EnableSchedule:
-    Type: String
-    Default: true
   CronSchedule:
     Type: String
     Description: Cron Schedule
+  CustomTags:
+    Type: String
+    Description: CustomTags for reporting
   Recipients:
     Type: String
     Default: john@doe.com
@@ -54,10 +54,6 @@ Parameters:
     Description: Microsoft Teams WebHook URL
 
 ###########################################################
-Conditions:
-###########################################################
-  CondEnableSchedule: !Equals ['true', !Ref 'EnableSchedule']
-###########################################################
 Resources:
 ###########################################################
   InstanceWatcherFunction:
@@ -82,6 +78,7 @@ Resources:
           EnableTeams: !Ref EnableTeams
           TeamsWebHook: !Ref TeamsWebHook
           CronSchedule: !Ref CronSchedule
+          CustomTags: !Ref CustomTags
           Environment: !Ref Env
       Policies:
         - AWSLambdaExecute # Managed Policy
@@ -111,7 +108,6 @@ Resources:
           Properties:
             Name: !Sub instance-watcher-schedule-${Env}
             Schedule: !Sub cron(${CronSchedule})
-            Enabled: !If [CondEnableSchedule, true, false]
       Tags:
         Project: !Ref Project
         CloudFormation: "True"
@@ -170,7 +166,3 @@ Resources:
       Subscription:
         - Protocol: email
           Endpoint: !Select [0, !Split [" ", !Ref Recipients]]
-          
-Outputs:
-  ScheduleEnableValue: 
-    Value: !Ref EnableSchedule
