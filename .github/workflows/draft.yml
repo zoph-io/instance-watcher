@@ -50,3 +50,10 @@ jobs:
               Sender=${{ secrets.SENDER }} \
               Project=${{ env.project }} \
               Env=${{ env.env }}
+
+      - name: pull-request
+        uses: repo-sync/pull-request@v2
+        with:
+          pr_reviewer: "z0ph"
+          pr_assignee: "z0ph"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
